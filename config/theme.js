@@ -28,6 +28,39 @@ export const theme = {
     card: 12,
     medium: 10,
   },
+  suggestedContainer: {
+    marginBottom: 20,
+  },
+  suggestedTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  gridItem: {
+  flex: 1,
+  margin: 5,
+  alignItems: 'center',
+},
+gridImage: {
+  width: 150,
+  height: 150,
+  borderRadius: 10,
+  resizeMode: 'cover',
+},
+gridPlaceholder: {
+  width: 150,
+  height: 150,
+  borderRadius: 10,
+  backgroundColor: '#eee',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+gridText: {
+  marginTop: 5,
+  fontWeight: 'bold',
+  textAlign: 'center',
+},
+
   shadow: {
     opacity: 0.05,
     radius: 4,
