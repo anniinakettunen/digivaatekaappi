@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, FlatList, Image, Button } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../config/theme';
@@ -7,51 +7,13 @@ import { theme } from '../config/theme';
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const navigation = useNavigation();
-  const [suggestedOutfit, setSuggestedOutfit] = useState({});
-  const LATITUDE = 60.1699;
-  const LONGITUDE = 24.9384;
+  const [clothes, setClothes] = useState([]);
 
-  // Hae sää Open-Meteosta
-  const fetchWeather = async () => {
-    try {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current_weather=true`
-      );
-      const data = await response.json();
-      return data.current_weather.temperature;
-    } catch (error) {
-      console.error('Weather fetch error:', error);
-      return null;
-    }
-  };
-
-  // Luo satunnainen ehdotus kategorioittain
-  const generateSuggestedOutfit = (clothes, temperature) => {
-    const categories = ['top', 'bottom', 'shoes', 'hat'];
-    const outfit = {};
-
-    categories.forEach(category => {
-      let items = clothes.filter(item => item.category === category);
-      if (temperature !== null) {
-        items = items.filter(item => {
-          if (category === 'top' && temperature < 10) return item.warm;
-          return true;
-        });
-      }
-      if (items.length > 0) {
-        outfit[category] = items[Math.floor(Math.random() * items.length)];
-      }
-    });
-
-    setSuggestedOutfit(outfit);
-  };
-
-  // Hae vaatteet ja generoi ehdotus
+  // Hae vaatteet tietokannasta
   const fetchClothes = async () => {
     try {
       const result = await db.getAllAsync('SELECT * FROM clothing');
-      const temp = await fetchWeather();
-      generateSuggestedOutfit(result, temp);
+      setClothes(result);
     } catch (error) {
       console.error('Error fetching clothes:', error);
     }
@@ -59,9 +21,11 @@ export default function HomeScreen() {
 
   useEffect(() => {
     fetchClothes();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', fetchClothes);
+    return () => unsubscribe();
+  }, [navigation]);
 
-  const renderGridItem = ({ item: [category, item] }) => (
+  const renderGridItem = ({ item }) => (
     <View style={theme.gridItem}>
       {item.imageUri ? (
         <Image source={{ uri: item.imageUri }} style={theme.gridImage} />
@@ -70,7 +34,8 @@ export default function HomeScreen() {
           <Text style={{ color: theme.colors.placeholder }}>No image</Text>
         </View>
       )}
-      <Text style={theme.gridText}>{category.toUpperCase()}</Text>
+      <Text style={theme.gridText}>{item.name}</Text>
+      <Text style={theme.gridText}>{item.category.toUpperCase()}</Text>
     </View>
   );
 
@@ -86,18 +51,18 @@ export default function HomeScreen() {
         onPress={() => navigation.navigate('AddClothing')}
       />
 
-      {/* Päivän ehdotus */}
-      {Object.keys(suggestedOutfit).length > 0 ? (
+      {/* Vaatelista */}
+      {clothes.length > 0 ? (
         <FlatList
-          data={Object.entries(suggestedOutfit)}
-          keyExtractor={([category]) => category}
+          data={clothes}
+          keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           renderItem={renderGridItem}
           contentContainerStyle={{ paddingTop: theme.spacing.medium }}
         />
       ) : (
         <Text style={{ textAlign: 'center', marginTop: theme.spacing.large, color: theme.colors.textSecondary }}>
-          Loading outfit...
+          No clothing items found.
         </Text>
       )}
     </View>

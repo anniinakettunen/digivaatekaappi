@@ -19,47 +19,55 @@ export const theme = {
     border: '#ddd',
     shadow: '#000',
   },
+
   spacing: {
     small: 5,
     medium: 10,
     large: 20,
   },
+
   borderRadius: {
     card: 12,
     medium: 10,
   },
+
   suggestedContainer: {
     marginBottom: 20,
   },
+
   suggestedTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
+
   gridItem: {
-  flex: 1,
-  margin: 5,
-  alignItems: 'center',
-},
-gridImage: {
-  width: 150,
-  height: 150,
-  borderRadius: 10,
-  resizeMode: 'cover',
-},
-gridPlaceholder: {
-  width: 150,
-  height: 150,
-  borderRadius: 10,
-  backgroundColor: '#eee',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-gridText: {
-  marginTop: 5,
-  fontWeight: 'bold',
-  textAlign: 'center',
-},
+    flex: 1,
+    margin: 5,
+    alignItems: 'center',
+  },
+
+  gridImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+    resizeMode: 'cover',
+  },
+
+  gridPlaceholder: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  gridText: {
+    marginTop: 5,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 
   shadow: {
     opacity: 0.05,
@@ -67,5 +75,6 @@ gridText: {
     offset: { width: 0, height: 2 },
     elevation: 3,
   },
+
   imageHeight: 200,
 };
