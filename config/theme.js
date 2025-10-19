@@ -1,80 +1,70 @@
+// config/theme.js
+
 export const theme = {
   colors: {
-    primary: {
-      main: '#4a90e2',
-      light: '#6aa0f5',
-      dark: '#3573c5',
-    },
-    secondary: {
-      main: '#ff6f61',
-      light: '#ff998f',
-      dark: '#cc574d',
-    },
-    background: '#fafafa',
-    surface: '#fff',
-    textPrimary: '#333',
-    textSecondary: '#666',
-    error: '#ff0000',
-    placeholder: '#888',
-    border: '#ddd',
-    shadow: '#000',
+    // 🎨 Päävärit
+    primary: '#804674', // 💜 Syvä violetti — pääväri (napit, korostukset)
+    secondary: '#A86464', // 🌹 Lämmin ruusunruskea — tukiväri (painikkeet, otsikot)
+    accent: '#B3E5BE', // 💚 Vaalea vihreä — korostukset, hover-efektit
+    highlight: '#F5FFC9', // 💛 Vaalea keltainen — taustakorostukset / valinnat
+
+    // ⚙️ Käyttöliittymävärit
+    background: '#FFFFF', // 🪶 Sovelluksen yleinen taustaväri
+    surface: '#FFFFFF', // 🧾 Korttien / laatikoiden tausta
+    border: '#E0E0E0', // 🔲 Rajaukset ja viivat
+
+    // ✏️ Tekstivärit
+    textPrimary: '#2E2E2E', // 🔤 Pääteksti
+    textSecondary: '#5C5C5C', // 🔤 Toissijainen teksti
+    placeholder: '#9E9E9E', // 💬 Placeholder-teksti (inputit yms.)
+
+    // ⚠️ Tilavärit
+    error: '#E57373',
+    success: '#81C784',
+    warning: '#FFD54F',
   },
 
   spacing: {
-    small: 5,
-    medium: 10,
-    large: 20,
+    xsmall: 4,
+    small: 8,
+    medium: 16,
+    large: 24,
+    xlarge: 32,
   },
 
   borderRadius: {
-    card: 12,
+    small: 6,
     medium: 10,
-  },
-
-  suggestedContainer: {
-    marginBottom: 20,
-  },
-
-  suggestedTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-
-  gridItem: {
-    flex: 1,
-    margin: 5,
-    alignItems: 'center',
-  },
-
-  gridImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 10,
-    resizeMode: 'cover',
-  },
-
-  gridPlaceholder: {
-    width: 150,
-    height: 150,
-    borderRadius: 10,
-    backgroundColor: '#eee',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  gridText: {
-    marginTop: 5,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    large: 16,
+    card: 12,
   },
 
   shadow: {
-    opacity: 0.05,
-    radius: 4,
-    offset: { width: 0, height: 2 },
-    elevation: 3,
+    default: {
+      shadowColor: '#000',
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 3,
+    },
   },
 
-  imageHeight: 200,
+  typography: {
+    fontFamily: {
+      regular: 'System', // vaihdetaan esim. 'Poppins-Regular' tms.
+      bold: 'System',
+      light: 'System',
+    },
+    fontSize: {
+      small: 12,
+      medium: 16,
+      large: 20,
+      xlarge: 26,
+    },
+    lineHeight: {
+      small: 18,
+      medium: 24,
+      large: 30,
+    },
+  },
 };

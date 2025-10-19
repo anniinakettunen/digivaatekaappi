@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  Button,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, Button } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../config/theme';
-
-const screenHeight = Dimensions.get('window').height;
+import { globalStyles } from '../config/GlobalStyles';
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
@@ -35,26 +25,17 @@ export default function HomeScreen() {
     }
   };
 
-  // 🔹 useEffect, jossa haetaan vaatteet ja viimeisin outfit
   useEffect(() => {
     const fetchData = async () => {
       await fetchClothes();
-
       try {
-        const outfits = await db.getAllAsync(
-          'SELECT * FROM outfits ORDER BY id DESC LIMIT 1'
-        );
+        const outfits = await db.getAllAsync('SELECT * FROM outfits ORDER BY id DESC LIMIT 1');
         if (outfits.length > 0) {
           const last = outfits[0];
-          // ⚡️ Asetetaan viimeisin outfit vain, jos käyttäjä ei ole valinnut tyyliä
-          if (!selectedStyle) {
-            setSelectedStyle(last.style);
-          }
+          if (!selectedStyle) setSelectedStyle(last.style);
           setSelectedItems(JSON.parse(last.items));
         } else {
-          if (!selectedStyle) {
-            setSelectedStyle(null);
-          }
+          if (!selectedStyle) setSelectedStyle(null);
           setSelectedItems([]);
         }
       } catch (error) {
@@ -62,9 +43,7 @@ export default function HomeScreen() {
       }
     };
 
-    // 🔹 Päivitä aina, kun HomeScreen tulee näkyviin
     const unsubscribe = navigation.addListener('focus', fetchData);
-
     return () => unsubscribe();
   }, [navigation, selectedStyle]);
 
@@ -73,10 +52,9 @@ export default function HomeScreen() {
     if (!alreadySelected) {
       setSelectedItems([...selectedItems, item]);
     } else {
-      const updated = selectedItems.map((i) =>
-        i.category === item.category ? item : i
+      setSelectedItems(
+        selectedItems.map((i) => (i.category === item.category ? item : i))
       );
-      setSelectedItems(updated);
     }
   };
 
@@ -85,15 +63,8 @@ export default function HomeScreen() {
   };
 
   const saveOutfit = async () => {
-    if (!selectedStyle) {
-      alert('Please select a style before saving.');
-      return;
-    }
-
-    if (selectedItems.length === 0) {
-      alert('Please select at least one clothing item.');
-      return;
-    }
+    if (!selectedStyle) return alert('Please select a style before saving.');
+    if (selectedItems.length === 0) return alert('Please select at least one clothing item.');
 
     try {
       const itemsJson = JSON.stringify(selectedItems);
@@ -106,29 +77,32 @@ export default function HomeScreen() {
         timestamp
       );
 
-      console.log('Outfit saved successfully!');
       alert('Outfit saved!');
-      
-      
     } catch (error) {
       console.error('Failed to save outfit:', error);
       alert('Failed to save outfit.');
     }
   };
 
-  const getItemByCategory = (category) =>
-    selectedItems.find((item) => item.category === category);
+  const getItemByCategory = (category) => selectedItems.find((item) => item.category === category);
 
   const renderStyleCircle = (style) => {
     const isSelected = selectedStyle === style;
-
     return (
       <TouchableOpacity
         key={style}
-        style={[styles.styleCircle, isSelected && styles.styleCircleSelected]}
+        style={[
+          globalStyles.styleCircle,
+          isSelected && globalStyles.styleCircleSelected
+        ]}
         onPress={() => setSelectedStyle(style)}
       >
-        <Text style={[styles.styleText, isSelected && styles.styleTextSelected]}>
+        <Text
+          style={[
+            globalStyles.styleText,
+            isSelected && globalStyles.styleTextSelected
+          ]}
+        >
           {style}
         </Text>
       </TouchableOpacity>
@@ -136,184 +110,71 @@ export default function HomeScreen() {
   };
 
   const renderCarouselItem = ({ item }) => (
-    <TouchableOpacity onPress={() => addToOutfit(item)} style={styles.carouselItem}>
-      <Image source={{ uri: item.imageUri }} style={styles.carouselImage} />
+    <TouchableOpacity onPress={() => addToOutfit(item)} style={globalStyles.carouselItem}>
+      <Image source={{ uri: item.imageUri }} style={globalStyles.carouselImage} />
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      {/* 🔘 Vaatetyylit */}
-      <View style={styles.styleRow}>
+    <View style={globalStyles.container}>
+      <View style={globalStyles.styleRow}>
         {stylesList.map(renderStyleCircle)}
       </View>
 
-      {/* 🧍‍♀️ Asukokonaisuus */}
-      <Text style={styles.title}>Your Outfit</Text>
-      <View style={styles.outfitArea}>
-        {/* 🎒 Asusteet vasemmalla rivissä */}
-        <View style={styles.accessoryColumn}>
-          <View style={styles.accessoryRow}>
+      <Text style={globalStyles.title}>Your Outfit</Text>
+      <View style={globalStyles.outfitArea}>
+        <View style={globalStyles.accessoryColumn}>
+          <View style={globalStyles.accessoryRow}>
             {accessoryCategories.map((category) => {
               const item = getItemByCategory(category);
               return item ? (
-                <TouchableOpacity key={item.id} onPress={() => removeFromOutfit(item.id)} style={styles.accessoryItem}>
-                  <Image source={{ uri: item.imageUri }} style={styles.accessoryImage} />
-                  <Text style={styles.outfitLabel}>{category.toUpperCase()}</Text>
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => removeFromOutfit(item.id)}
+                  style={globalStyles.accessoryItem}
+                >
+                  <Image source={{ uri: item.imageUri }} style={globalStyles.accessoryImage} />
+                  <Text style={globalStyles.outfitLabel}>{category.toUpperCase()}</Text>
                 </TouchableOpacity>
               ) : null;
             })}
           </View>
         </View>
 
-        {/* 🧍‍♀️ Päävaatteet keskellä pystyrivissä */}
-        <View style={styles.mainColumn}>
+        <View style={globalStyles.mainColumn}>
           {mainCategories.map((category) => {
             const item = getItemByCategory(category);
             return item ? (
-              <TouchableOpacity key={item.id} onPress={() => removeFromOutfit(item.id)} style={styles.outfitItem}>
-                <Image source={{ uri: item.imageUri }} style={styles.outfitImage} />
-                <Text style={styles.outfitLabel}>{category.toUpperCase()}</Text>
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => removeFromOutfit(item.id)}
+                style={globalStyles.outfitItem}
+              >
+                <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                <Text style={globalStyles.outfitLabel}>{category.toUpperCase()}</Text>
               </TouchableOpacity>
             ) : null;
           })}
         </View>
       </View>
 
-      {/* 💾 Tallenna-painike */}
       {selectedItems.length > 0 && (
-        <View style={styles.saveButton}>
-          <Button title="Save Outfit" onPress={saveOutfit} />
+        <View style={globalStyles.saveButton}>
+          <Button title="Save Outfit" onPress={saveOutfit} color={theme.colors.primary} />
         </View>
       )}
 
-      {/* 👕 Karuselli alhaalla */}
-      <View style={styles.carouselWrapper}>
-        <Text style={styles.subtitle}>All Clothes</Text>
+      <View style={globalStyles.carouselWrapper}>
+        <Text style={globalStyles.subtitle}>All Clothes</Text>
         <FlatList
           data={clothes}
           horizontal
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCarouselItem}
-          contentContainerStyle={styles.carouselList}
+          contentContainerStyle={globalStyles.carouselList}
           showsHorizontalScrollIndicator={false}
         />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    paddingTop: theme.spacing.large,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    paddingHorizontal: theme.spacing.medium,
-    marginBottom: theme.spacing.small,
-    color: theme.colors.textPrimary,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    paddingHorizontal: theme.spacing.medium,
-    marginBottom: theme.spacing.small,
-    color: theme.colors.textSecondary,
-  },
-  outfitArea: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.medium,
-  },
-  mainColumn: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    width: 100,
-  },
-  accessoryColumn: {
-    justifyContent: 'flex-start',
-    marginRight: 10,
-  },
-  accessoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  outfitItem: {
-    marginVertical: theme.spacing.xsmall,
-    alignItems: 'center',
-  },
-  accessoryItem: {
-    marginHorizontal: theme.spacing.xsmall,
-    alignItems: 'center',
-  },
-  outfitImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-  },
-  accessoryImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 6,
-  },
-  outfitLabel: {
-    marginTop: 2,
-    fontSize: 10,
-    color: theme.colors.textSecondary,
-  },
-  saveButton: {
-    marginTop: theme.spacing.medium,
-    paddingHorizontal: theme.spacing.medium,
-  },
-  styleRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: theme.spacing.medium,
-  },
-  styleCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: theme.colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 8,
-    elevation: 2,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  styleCircleSelected: {
-    borderColor: theme.colors.primary,
-    borderWidth: 3,
-  },
-  styleText: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-  },
-  styleTextSelected: {
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-  },
-  carouselWrapper: {
-    marginTop: theme.spacing.large,
-    paddingBottom: theme.spacing.large,
-  },
-  carouselList: {
-    paddingHorizontal: theme.spacing.medium,
-  },
-  carouselItem: {
-    marginRight: theme.spacing.small,
-  },
-  carouselImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 6,
-  },
-});
