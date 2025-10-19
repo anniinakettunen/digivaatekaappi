@@ -10,6 +10,9 @@ import SavedStylesScreen from './screens/SavedStylesScreen';
 import ClothingList from './screens/ClothingList';
 import AddClothingScreen from './screens/AddClothingScreen';
 import EditOutFitScreen from './screens/EditOutFitScreen'; 
+import FashionNewsScreen from './screens/FashionNewsScreen';
+import { Handbag } from 'lucide-react-native';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -17,7 +20,7 @@ const Stack = createStackNavigator();
 export function BottomTabs() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: '#4a90e2',
         tabBarInactiveTintColor: '#999',
@@ -26,27 +29,44 @@ export function BottomTabs() {
           paddingBottom: 5,
           height: 60,
         },
-        tabBarIcon: ({ color, size }) => {
-          if (route.name === 'Home') {
-            return <Octicons name="home" size={size} color={color} />;
-          } else if (route.name === 'Closet') {
-            return <FontAwesome6 name="shirt" size={size} color={color} />;
-          } else if (route.name === 'Add Clothing') {
-            return <Octicons name="plus" size={size} color={color} />;
-          } else if (route.name === 'Outfits') {
-            return <MaterialCommunityIcons name="shoe-heel" size={size} color={color} />;
-          }
-        },
-      })}
+      }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Outfits" component={SavedStylesScreen} />
-      <Tab.Screen
-        name="Add Clothing"
-        component={AddClothingScreen}
-        options={{ tabBarLabel: 'Add' }}
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen} 
+        options={{
+          tabBarIcon: ({ color, size }) => <Octicons name="home" size={size} color={color} />,
+        }}
       />
-      <Tab.Screen name="Closet" component={ClothingList} />
+      <Tab.Screen 
+        name="Outfits" 
+        component={SavedStylesScreen} 
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="shoe-heel" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen 
+        name="Add Clothing" 
+        component={AddClothingScreen} 
+        options={{
+          tabBarLabel: 'Add',
+          tabBarIcon: ({ color, size }) => <Octicons name="plus" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen 
+        name="Closet" 
+        component={ClothingList} 
+        options={{
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="shirt" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen 
+        name="Trends"
+        component={FashionNewsScreen} 
+        options={{
+          tabBarIcon: ({ color, size }) => <Handbag color={color} size={size} />,
+        }}
+      />
     </Tab.Navigator>
   );
 }
