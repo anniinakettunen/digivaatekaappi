@@ -10,17 +10,19 @@ import {
   Dimensions,
 } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { theme } from '../config/theme';
 
 const screenHeight = Dimensions.get('window').height;
 
-export default function HomeScreen() {
+export default function EditOutFitScreen() {
   const db = useSQLiteContext();
   const navigation = useNavigation();
+  const { outfit } = useRoute().params;
+
   const [clothes, setClothes] = useState([]);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [selectedStyle, setSelectedStyle] = useState(null);
+  const [selectedItems, setSelectedItems] = useState(JSON.parse(outfit.items));
+  const [selectedStyle, setSelectedStyle] = useState(outfit.style);
 
   const stylesList = ['Casual', 'Formal', 'Sport', 'Party'];
   const mainCategories = ['hat', 'top', 'bodysuit', 'bottom', 'shoes'];
@@ -57,7 +59,7 @@ export default function HomeScreen() {
     setSelectedItems(selectedItems.filter((i) => i.id !== id));
   };
 
-  const saveOutfit = async () => {
+  const updateOutfit = async () => {
     if (!selectedStyle) {
       alert('Please select a style before saving.');
       return;
@@ -73,22 +75,20 @@ export default function HomeScreen() {
       const timestamp = new Date().toISOString();
 
       await db.runAsync(
-        'INSERT INTO outfits (style, items, createdAt) VALUES (?, ?, ?);',
+        'UPDATE outfits SET style = ?, items = ?, createdAt = ? WHERE id = ?;',
         selectedStyle,
         itemsJson,
-        timestamp
+        timestamp,
+        outfit.id
       );
 
-      console.log('Outfit saved successfully!');
-      alert('Outfit saved!');
-      setSelectedItems([]);
-      setSelectedStyle(null);
+      alert('Outfit updated!');
+      navigation.goBack();
     } catch (error) {
-      console.error('Failed to save outfit:', error);
-      alert('Failed to save outfit.');
+      console.error('Failed to update outfit:', error);
+      alert('Update failed.');
     }
   };
-
 
   const getItemByCategory = (category) =>
     selectedItems.find((item) => item.category === category);
@@ -112,7 +112,6 @@ export default function HomeScreen() {
     );
   };
 
-
   const renderCarouselItem = ({ item }) => (
     <TouchableOpacity onPress={() => addToOutfit(item)} style={styles.carouselItem}>
       <Image source={{ uri: item.imageUri }} style={styles.carouselImage} />
@@ -127,7 +126,7 @@ export default function HomeScreen() {
       </View>
 
       {/* 🧍‍♀️ Asukokonaisuus */}
-      <Text style={styles.title}>Your Outfit</Text>
+      <Text style={styles.title}>Edit Outfit</Text>
       <View style={styles.outfitArea}>
         {/* 🎒 Asusteet vasemmalla rivissä */}
         <View style={styles.accessoryColumn}>
@@ -158,16 +157,16 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* 💾 Tallenna-painike */}
+      {/* 💾 Päivitä-painike */}
       {selectedItems.length > 0 && (
         <View style={styles.saveButton}>
-          <Button title="Save Outfit" onPress={saveOutfit} />
+          <Button title="Update Outfit" onPress={updateOutfit} />
         </View>
       )}
 
       {/* 👕 Karuselli alhaalla */}
       <View style={styles.carouselWrapper}>
-        <Text style={styles.subtitle}>All Clothes</Text>
+        <Text style={styles.subtitle}>Add or Replace Items</Text>
         <FlatList
           data={clothes}
           horizontal
@@ -180,7 +179,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -267,18 +265,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-
   styleCircleSelected: {
     borderColor: theme.colors.primary,
     borderWidth: 3,
   },
-
   styleText: {
     fontSize: 12,
     color: theme.colors.textSecondary,
     textAlign: 'center',
   },
-
   styleTextSelected: {
     fontWeight: 'bold',
     color: theme.colors.primary,
