@@ -14,7 +14,6 @@ import EditOutFitScreen from './screens/EditOutFitScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// 🔽 BottomTabs siirretty tänne
 export function BottomTabs() {
   return (
     <Tab.Navigator
@@ -28,27 +27,30 @@ export function BottomTabs() {
           height: 60,
         },
         tabBarIcon: ({ color, size }) => {
-          if (route.name === 'HomePage') {
+          if (route.name === 'Home') {
             return <Octicons name="home" size={size} color={color} />;
-          } else if (route.name === 'All Clothes') {
+          } else if (route.name === 'Closet') {
             return <FontAwesome6 name="shirt" size={size} color={color} />;
-          } else if (route.name === 'Add New') {
+          } else if (route.name === 'Add Clothing') {
             return <Octicons name="plus" size={size} color={color} />;
-          } else if (route.name === 'Styles') {
+          } else if (route.name === 'Outfits') {
             return <MaterialCommunityIcons name="shoe-heel" size={size} color={color} />;
           }
         },
       })}
     >
-      <Tab.Screen name="HomePage" component={HomeScreen} />
-      <Tab.Screen name="Styles" component={SavedStylesScreen} />
-      <Tab.Screen name="All Clothes" component={ClothingList} />
-      <Tab.Screen name="Add New" component={AddClothingScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Outfits" component={SavedStylesScreen} />
+      <Tab.Screen
+        name="Add Clothing"
+        component={AddClothingScreen}
+        options={{ tabBarLabel: 'Add' }}
+      />
+      <Tab.Screen name="Closet" component={ClothingList} />
     </Tab.Navigator>
   );
 }
 
-// 🧭 Stack-navigaattori joka sisältää tabit + muokkausnäytön
 export default function AppNavigator() {
   return (
     <Stack.Navigator>

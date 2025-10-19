@@ -35,11 +35,38 @@ export default function HomeScreen() {
     }
   };
 
+  // 🔹 useEffect, jossa haetaan vaatteet ja viimeisin outfit
   useEffect(() => {
-    fetchClothes();
-    const unsubscribe = navigation.addListener('focus', fetchClothes);
+    const fetchData = async () => {
+      await fetchClothes();
+
+      try {
+        const outfits = await db.getAllAsync(
+          'SELECT * FROM outfits ORDER BY id DESC LIMIT 1'
+        );
+        if (outfits.length > 0) {
+          const last = outfits[0];
+          // ⚡️ Asetetaan viimeisin outfit vain, jos käyttäjä ei ole valinnut tyyliä
+          if (!selectedStyle) {
+            setSelectedStyle(last.style);
+          }
+          setSelectedItems(JSON.parse(last.items));
+        } else {
+          if (!selectedStyle) {
+            setSelectedStyle(null);
+          }
+          setSelectedItems([]);
+        }
+      } catch (error) {
+        console.error('Error fetching last outfit:', error);
+      }
+    };
+
+    // 🔹 Päivitä aina, kun HomeScreen tulee näkyviin
+    const unsubscribe = navigation.addListener('focus', fetchData);
+
     return () => unsubscribe();
-  }, [navigation]);
+  }, [navigation, selectedStyle]);
 
   const addToOutfit = (item) => {
     const alreadySelected = selectedItems.find((i) => i.category === item.category);
@@ -81,14 +108,13 @@ export default function HomeScreen() {
 
       console.log('Outfit saved successfully!');
       alert('Outfit saved!');
-      setSelectedItems([]);
-      setSelectedStyle(null);
+      
+      
     } catch (error) {
       console.error('Failed to save outfit:', error);
       alert('Failed to save outfit.');
     }
   };
-
 
   const getItemByCategory = (category) =>
     selectedItems.find((item) => item.category === category);
@@ -99,10 +125,7 @@ export default function HomeScreen() {
     return (
       <TouchableOpacity
         key={style}
-        style={[
-          styles.styleCircle,
-          isSelected && styles.styleCircleSelected
-        ]}
+        style={[styles.styleCircle, isSelected && styles.styleCircleSelected]}
         onPress={() => setSelectedStyle(style)}
       >
         <Text style={[styles.styleText, isSelected && styles.styleTextSelected]}>
@@ -111,7 +134,6 @@ export default function HomeScreen() {
       </TouchableOpacity>
     );
   };
-
 
   const renderCarouselItem = ({ item }) => (
     <TouchableOpacity onPress={() => addToOutfit(item)} style={styles.carouselItem}>
@@ -180,7 +202,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -267,18 +288,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-
   styleCircleSelected: {
     borderColor: theme.colors.primary,
     borderWidth: 3,
   },
-
   styleText: {
     fontSize: 12,
     color: theme.colors.textSecondary,
     textAlign: 'center',
   },
-
   styleTextSelected: {
     fontWeight: 'bold',
     color: theme.colors.primary,
