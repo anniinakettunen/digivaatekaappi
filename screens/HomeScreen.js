@@ -41,16 +41,6 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, padding: theme.spacing.large, backgroundColor: theme.colors.background }}>
-      {/* Navigointinapit */}
-      <Button
-        title="View Full Clothing List"
-        onPress={() => navigation.navigate('ClothingList')}
-      />
-      <Button
-        title="Add New Clothing"
-        onPress={() => navigation.navigate('AddClothing')}
-      />
-
       {/* Vaatelista */}
       {clothes.length > 0 ? (
         <FlatList
@@ -68,3 +58,6 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+
+

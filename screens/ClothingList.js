@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, FlatList, Image, StyleSheet, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../config/theme';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+
 
 export default function ClothingList() {
   const [clothes, setClothes] = useState([]);
@@ -41,6 +45,10 @@ export default function ClothingList() {
     );
   };
 
+  const editItem = (item) => {
+    navigation.navigate('Add New', { item });
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', updateList);
     return () => unsubscribe();
@@ -55,17 +63,25 @@ export default function ClothingList() {
       )}
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.category}>{item.category}</Text>
-      <Text style={styles.delete} onPress={() => deleteItem(item.id)}>Delete</Text>
+
+      <View style={styles.iconRow}>
+        <TouchableOpacity onPress={() => editItem(item)} style={styles.iconButton}>
+          <FontAwesome6 name="pen-to-square" size={18} color={theme.colors.primary} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => deleteItem(item.id)} style={styles.iconButton}>
+          <FontAwesome6 name="trash-can" size={18} color={theme.colors.error} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Button title="Add Clothing" onPress={() => navigation.navigate('AddClothing')} />
       <FlatList
         data={clothes}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
+        numColumns={3}
         refreshing={false}
         onRefresh={updateList}
         ListEmptyComponent={<Text style={styles.empty}>No clothing saved yet.</Text>}
@@ -76,51 +92,50 @@ export default function ClothingList() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: theme.spacing.large,
-    marginTop: theme.spacing.large,
+    padding: theme.spacing.medium,
     flex: 1,
     backgroundColor: theme.colors.background,
   },
   card: {
-    marginBottom: theme.spacing.large,
-    padding: theme.spacing.large,
-    borderRadius: theme.borderRadius.card,
+    flex: 1,
+    margin: theme.spacing.small,
     backgroundColor: theme.colors.surface,
-    shadowColor: theme.colors.shadow,
-    shadowOpacity: theme.shadow.opacity,
-    shadowRadius: theme.shadow.radius,
-    shadowOffset: theme.shadow.offset,
-    elevation: theme.shadow.elevation,
+    borderRadius: theme.borderRadius.card,
+    overflow: 'hidden',
+    position: 'relative',
   },
   image: {
     width: '100%',
-    height: theme.imageHeight,
-    borderRadius: theme.borderRadius.medium,
-    marginBottom: theme.spacing.medium,
+    aspectRatio: 1,
   },
   placeholder: {
     width: '100%',
-    height: theme.imageHeight,
-    borderRadius: theme.borderRadius.medium,
+    aspectRatio: 1,
     backgroundColor: '#eee',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: theme.spacing.medium,
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.small,
+    paddingHorizontal: 6,
+    paddingTop: 4,
   },
   category: {
-    fontSize: 16,
+    fontSize: 12,
     color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.medium,
+    paddingHorizontal: 6,
+    paddingBottom: 4,
   },
-  delete: {
-    color: theme.colors.error,
-    fontWeight: 'bold',
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 6,
+    paddingBottom: 6,
+  },
+  iconButton: {
+    marginLeft: 8,
   },
   empty: {
     marginTop: 30,
@@ -129,4 +144,3 @@ const styles = StyleSheet.create({
     color: theme.colors.placeholder,
   },
 });
-

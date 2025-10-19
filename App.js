@@ -1,13 +1,46 @@
 import { SQLiteProvider } from 'expo-sqlite';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
+import Octicons from '@expo/vector-icons/Octicons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 import ClothingList from './screens/ClothingList';
 import AddClothingScreen from './screens/AddClothingScreen';
 import HomeScreen from './screens/HomeScreen';
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+export function BottomTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: true,
+        tabBarActiveTintColor: '#4a90e2',
+        tabBarInactiveTintColor: '#999',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          paddingBottom: 5,
+          height: 60,
+        },
+        tabBarIcon: ({ color, size }) => {
+          if (route.name === 'HomePage') {
+            return <Octicons name="home" size={size} color={color} />;
+          } else if (route.name === 'All Clothes') {
+            return <FontAwesome6 name="shirt" size={size} color={color} />;
+          } else if (route.name === 'Add New') {
+            return <Octicons name="plus" size={size} color={color} />;
+          }
+        },
+      })}
+    >
+      <Tab.Screen name="HomePage" component={HomeScreen} />
+      <Tab.Screen name="All Clothes" component={ClothingList} />
+      <Tab.Screen name="Add New" component={AddClothingScreen} />
+    </Tab.Navigator>
+  );
+}
+
 
 // Preloaded clothing data
 const initialData = [
@@ -168,12 +201,10 @@ const initialData = [
 
 ];
 
+
 export default function App() {
   const initialize = async (db) => {
-    // Poistetaan vanha taulu ensin
     await db.execAsync(`DROP TABLE IF EXISTS clothing;`);
-
-    // Luodaan uusi taulu opettajan asetusten mukaisesti
     await db.execAsync(`
       CREATE TABLE clothing (
         id INTEGER PRIMARY KEY NOT NULL,
@@ -187,7 +218,6 @@ export default function App() {
       );
     `);
 
-    // Lisätään esitäytetty data assets-kuvineen
     for (const item of initialData) {
       await db.runAsync(
         'INSERT INTO clothing (name, category, season, weather, material, color, imageUri) VALUES (?, ?, ?, ?, ?, ?, ?);',
@@ -209,23 +239,7 @@ export default function App() {
       onError={(error) => console.error('Database error:', error)}
     >
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ title: 'My Wardrobe App' }}
-          />
-          <Stack.Screen
-            name="ClothingList"
-            component={ClothingList}
-            options={{ title: 'My Wardrobe' }}
-          />
-          <Stack.Screen
-            name="AddClothing"
-            component={AddClothingScreen}
-            options={{ title: 'Add New Item' }}
-          />
-        </Stack.Navigator>
+        <BottomTabs />
       </NavigationContainer>
     </SQLiteProvider>
   );

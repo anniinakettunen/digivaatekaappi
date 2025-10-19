@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   TextInput,
@@ -8,24 +8,58 @@ import {
   Alert,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 
 export default function AddClothingScreen() {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
   const [imageUri, setImageUri] = useState(null);
+  const [season, setSeason] = useState('');
+  const [weather, setWeather] = useState('');
+  const [material, setMaterial] = useState('');
+  const [color, setColor] = useState('');
 
   const db = useSQLiteContext();
   const navigation = useNavigation();
+  const route = useRoute();
+  const editingItem = route.params?.item;
+
+  // 🔄 Tyhjennä kentät kun näkymä saa fokuksen ilman muokkausdataa
+  useFocusEffect(
+    useCallback(() => {
+      if (!route.params?.item) {
+        setName('');
+        setCategory('');
+        setSeason('');
+        setWeather('');
+        setMaterial('');
+        setColor('');
+        setImageUri(null);
+      }
+    }, [route.params])
+  );
+
+  // 📝 Esitäytä kentät kun muokataan
+  useEffect(() => {
+    if (editingItem) {
+      setName(editingItem.name || '');
+      setCategory(editingItem.category || '');
+      setSeason(editingItem.season || '');
+      setWeather(editingItem.weather || '');
+      setMaterial(editingItem.material || '');
+      setColor(editingItem.color || '');
+      setImageUri(editingItem.imageUri || null);
+    }
+  }, [editingItem]);
 
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images', // moderni tapa
+        mediaTypes: 'images',
         allowsEditing: true,
         quality: 1,
       });
@@ -39,7 +73,6 @@ export default function AddClothingScreen() {
     }
   };
 
-
   const saveClothing = async () => {
     if (!name.trim() || !category.trim() || !imageUri) {
       Alert.alert('Missing fields', 'Please fill in all fields and select an image.');
@@ -47,23 +80,52 @@ export default function AddClothingScreen() {
     }
 
     try {
-      await db.runAsync(
-        'INSERT INTO clothing (name, category, imageUri) VALUES (?, ?, ?);',
-        name.trim(),
-        category.trim(),
-        imageUri
-      );
+      if (editingItem) {
+        await db.runAsync(
+          'UPDATE clothing SET name=?, category=?, season=?, weather=?, material=?, color=?, imageUri=? WHERE id=?;',
+          name.trim(),
+          category.trim(),
+          season.trim(),
+          weather.trim(),
+          material.trim(),
+          color.trim(),
+          imageUri,
+          editingItem.id
+        );
 
-      Alert.alert('Success', 'Clothing saved successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+        // ✅ Tyhjennä params nyt, kun muokkaus on valmis
+        navigation.setParams({ item: undefined });
 
-      // Reset state
-      setName('');
-      setCategory('');
-      setImageUri(null);
+        Alert.alert('Updated', 'Clothing updated successfully!', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        await db.runAsync(
+          'INSERT INTO clothing (name, category, season, weather, material, color, imageUri) VALUES (?, ?, ?, ?, ?, ?, ?);',
+          name.trim(),
+          category.trim(),
+          season.trim(),
+          weather.trim(),
+          material.trim(),
+          color.trim(),
+          imageUri
+        );
+
+        Alert.alert('Saved', 'Clothing saved successfully!', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+
+        // ✅ Tyhjennä kentät uuden jälkeen
+        setName('');
+        setCategory('');
+        setSeason('');
+        setWeather('');
+        setMaterial('');
+        setColor('');
+        setImageUri(null);
+      }
     } catch (error) {
-      console.error('Insert failed:', error);
+      console.error('Save failed:', error);
       Alert.alert('Error', 'Saving failed. Please try again later.');
     }
   };
@@ -77,30 +139,21 @@ export default function AddClothingScreen() {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <TextInput
-          style={styles.input}
-          placeholder="Clothing name"
-          value={name}
-          onChangeText={setName}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Category (e.g. Top, Bottom)"
-          value={category}
-          onChangeText={setCategory}
-        />
+        <TextInput style={styles.input} placeholder="Clothing name" value={name} onChangeText={setName} />
+        <TextInput style={styles.input} placeholder="Category (e.g. Top, Bottom)" value={category} onChangeText={setCategory} />
+        <TextInput style={styles.input} placeholder="Season (e.g. Summer, Winter)" value={season} onChangeText={setSeason} />
+        <TextInput style={styles.input} placeholder="Weather (e.g. Sunny, Rainy)" value={weather} onChangeText={setWeather} />
+        <TextInput style={styles.input} placeholder="Material (e.g. Cotton, Denim)" value={material} onChangeText={setMaterial} />
+        <TextInput style={styles.input} placeholder="Color" value={color} onChangeText={setColor} />
 
         <View style={styles.buttonContainer}>
           <Button title="Pick image from gallery" onPress={pickImage} />
         </View>
 
-        {imageUri && (
-          <Image source={{ uri: imageUri }} style={styles.image} />
-        )}
+        {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
 
         <View style={styles.buttonContainer}>
-          <Button title="Save clothing" onPress={saveClothing} />
+          <Button title={editingItem ? 'Update clothing' : 'Save clothing'} onPress={saveClothing} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
