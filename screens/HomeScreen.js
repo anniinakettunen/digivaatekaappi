@@ -15,6 +15,8 @@ export default function HomeScreen() {
   const stylesList = ['Casual', 'Formal', 'Sport', 'Party'];
   const mainCategories = ['hat', 'top', 'bodysuit', 'bottom', 'shoes'];
   const accessoryCategories = ['scarf', 'jewelry', 'bag'];
+  const leftColumnCategories = mainCategories.slice(0, 4);
+  const rightColumnCategories = mainCategories.slice(4);
 
   const fetchClothes = async () => {
     try {
@@ -124,7 +126,7 @@ export default function HomeScreen() {
       <Text style={globalStyles.title}>Your Outfit</Text>
       <View style={globalStyles.outfitArea}>
         <View style={globalStyles.accessoryColumn}>
-          <View style={globalStyles.accessoryRow}>
+          <View style={{ flexDirection: 'column', alignItems: 'center' }}>
             {accessoryCategories.map((category) => {
               const item = getItemByCategory(category);
               return item ? (
@@ -139,6 +141,7 @@ export default function HomeScreen() {
               ) : null;
             })}
           </View>
+
         </View>
 
         <View style={globalStyles.mainColumn}>

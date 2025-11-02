@@ -59,6 +59,7 @@ export const globalStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-start',
     marginBottom: theme.spacing.medium,
+    
   },
   mainColumn: {
     flexDirection: 'column',
@@ -84,8 +85,8 @@ export const globalStyles = StyleSheet.create({
     alignItems: 'center',
   },
   outfitImage: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: theme.borderRadius.medium,
   },
   accessoryImage: {
@@ -137,8 +138,14 @@ export const globalStyles = StyleSheet.create({
 
   // 🔹 Karuselli (HomeScreen & EditOutFitScreen)
   carouselWrapper: {
-    marginTop: theme.spacing.large,
-    paddingBottom: theme.spacing.large,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white', // valinnainen, estää läpinäkyvyyttä
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderColor: '#ccc',
   },
   carouselList: {
     paddingHorizontal: theme.spacing.medium,
