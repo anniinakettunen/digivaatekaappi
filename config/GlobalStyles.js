@@ -22,7 +22,6 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: theme.spacing.medium,
   },
 
-  // 🔹 Kortit (SavedOutfits / News / Clothing)
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.card,
@@ -53,7 +52,6 @@ export const globalStyles = StyleSheet.create({
     flex: 0.48,
   },
 
-  // 🔹 Outfit-näkymän layout
   outfitArea: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -104,7 +102,6 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: theme.spacing.medium,
   },
 
-  // 🔹 Tyylivalinta
   styleRow: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -136,13 +133,12 @@ export const globalStyles = StyleSheet.create({
     color: theme.colors.primary,
   },
 
-  // 🔹 Karuselli (HomeScreen & EditOutFitScreen)
   carouselWrapper: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'white', // valinnainen, estää läpinäkyvyyttä
+    backgroundColor: 'white', 
     paddingVertical: 10,
     borderTopWidth: 1,
     borderColor: '#ccc',
@@ -159,7 +155,6 @@ export const globalStyles = StyleSheet.create({
     borderRadius: theme.borderRadius.small,
   },
 
-  // 🔹 News Screen
   newsListContent: {
     padding: theme.spacing.medium,
   },

@@ -1,25 +1,22 @@
-// config/theme.js
 
 export const theme = {
   colors: {
     // 🎨 Päävärit
-    primary: '#804674', // 💜 Syvä violetti — pääväri (napit, korostukset)
-    secondary: '#A86464', // 🌹 Lämmin ruusunruskea — tukiväri (painikkeet, otsikot)
-    accent: '#B3E5BE', // 💚 Vaalea vihreä — korostukset, hover-efektit
-    highlight: '#F5FFC9', // 💛 Vaalea keltainen — taustakorostukset / valinnat
+    primary: '#0F828C', 
+    secondary: '#A86464', 
+    accent: '#B3E5BE', 
+    highlight: '#F5FFC9', 
 
-    // ⚙️ Käyttöliittymävärit
-    background: '#FFFFF', // 🪶 Sovelluksen yleinen taustaväri
-    surface: '#FFFFFF', // 🧾 Korttien / laatikoiden tausta
-    border: '#E0E0E0', // 🔲 Rajaukset ja viivat
+    background: '#FFFFFF', 
+    surface: '#FFFFFF', 
+    border: '#E0E0E0', 
 
-    // ✏️ Tekstivärit
-    textPrimary: '#2E2E2E', // 🔤 Pääteksti
-    textSecondary: '#5C5C5C', // 🔤 Toissijainen teksti
-    placeholder: '#9E9E9E', // 💬 Placeholder-teksti (inputit yms.)
 
-    // ⚠️ Tilavärit
-    error: '#E57373',
+    textPrimary: '#2E2E2E', 
+    textSecondary: '#5C5C5C', 
+    placeholder: '#9E9E9E', 
+
+    error: '#811844',
     success: '#81C784',
     warning: '#FFD54F',
   },
@@ -51,7 +48,7 @@ export const theme = {
 
   typography: {
     fontFamily: {
-      regular: 'System', // vaihdetaan esim. 'Poppins-Regular' tms.
+      regular: 'System', 
       bold: 'System',
       light: 'System',
     },

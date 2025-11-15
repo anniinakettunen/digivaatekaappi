@@ -17,24 +17,51 @@ export default function SavedStylesScreen() {
     return () => unsubscribe();
   }, [navigation]);
 
+  /**
+   * 🔍 Hakee kaikki outfitit JA niiden vaatteet
+   */
   const fetchOutfits = async () => {
-    const result = await db.getAllAsync('SELECT * FROM outfits ORDER BY createdAt DESC');
-    setOutfits(result);
+    const outfitRows = await db.getAllAsync(
+      `SELECT * FROM outfits ORDER BY createdAt DESC;`
+    );
+
+    const fullOutfits = [];
+
+    for (const outfit of outfitRows) {
+      const clothingItems = await db.getAllAsync(
+        `
+        SELECT clothing.*
+        FROM outfit_clothing
+        JOIN clothing ON clothing.id = outfit_clothing.clothingId
+        WHERE outfit_clothing.outfitId = ?;
+        `,
+        outfit.id
+      );
+
+      fullOutfits.push({
+        ...outfit,
+        items: clothingItems, // 🔄 lisätään vaatteet tähän
+      });
+    }
+
+    setOutfits(fullOutfits);
   };
 
+  /**
+   * 🗑 Poistaa asun + siihen liittyvät outfit_clothing -linkit
+   */
   const deleteOutfit = async (id) => {
-    await db.runAsync('DELETE FROM outfits WHERE id = ?;', id);
+    await db.runAsync(`DELETE FROM outfits WHERE id = ?;`, id);
     fetchOutfits();
   };
 
   const renderOutfit = ({ item }) => {
-    const items = JSON.parse(item.items);
     return (
       <Card style={globalStyles.card}>
         <Card.Title title={item.style} />
         <Card.Content>
           <View style={globalStyles.imageRow}>
-            {items.map((clothing) => (
+            {item.items.map((clothing) => (
               <Image
                 key={clothing.id}
                 source={{ uri: clothing.imageUri }}
@@ -42,17 +69,20 @@ export default function SavedStylesScreen() {
               />
             ))}
           </View>
+
           <Text style={globalStyles.savedText}>
             Saved: {new Date(item.createdAt).toLocaleString()}
           </Text>
+
           <View style={globalStyles.buttonRow}>
             <Button
               mode="contained"
-              onPress={() => navigation.navigate('EditOutFit', { outfit: item })}
+              onPress={() => navigation.navigate('EditOutFit', { outfitId: item.id })}
               style={[globalStyles.button, { backgroundColor: theme.colors.primary }]}
             >
               Update
             </Button>
+
             <Button
               mode="contained"
               onPress={() => deleteOutfit(item.id)}
@@ -72,6 +102,7 @@ export default function SavedStylesScreen() {
         <Text variant="headlineMedium" style={globalStyles.title}>
           Saved Outfits
         </Text>
+
         <FlatList
           data={outfits}
           keyExtractor={(item) => item.id.toString()}

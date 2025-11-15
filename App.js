@@ -5,46 +5,57 @@ import { Image } from 'react-native';
 import AppNavigator from './AppNavigator';
 import { initialData } from './data/ClothingData'; 
 
-export default function App() {
-  const initialize = async (db) => {
-    // Tyhjennetään vanha clothing-taulu
-    await db.execAsync(`DROP TABLE IF EXISTS clothing;`);
-    await db.execAsync(`
-      CREATE TABLE clothing (
-        id INTEGER PRIMARY KEY NOT NULL,
-        name TEXT,
-        category TEXT,
-        season TEXT,
-        material TEXT,
-        color TEXT,
-        imageUri TEXT
-      );
-    `);
+// 🔥 HUOM: Lisää `DROP TABLE IF EXISTS outfits;` korjataksesi vanhan virheen
+const initialize = async (db) => {
 
-    // Luodaan uusi outfits-taulu
-    await db.execAsync(`
-      CREATE TABLE IF NOT EXISTS outfits (
-        id INTEGER PRIMARY KEY NOT NULL,
-        style TEXT,
-        items TEXT,
-        createdAt TEXT
-      );
-    `);
+  // 🧥 Clothing-taulu
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS clothing (
+      id INTEGER PRIMARY KEY NOT NULL,
+      name TEXT,
+      category TEXT,
+      season TEXT,
+      material TEXT,
+      color TEXT,
+      imageUri TEXT
+    );
+  `);
 
-    // Esitäytetään clothing-taulu
-    for (const item of initialData) {
-      await db.runAsync(
-        'INSERT INTO clothing (name, category, season, material, color, imageUri) VALUES (?, ?, ?, ?, ?, ?);',
-        item.name,
-        item.category,
-        item.season,
-        item.material,
-        item.color,
-        Image.resolveAssetSource(item.image).uri
-      );
-    }
-  };
+  // 👗 Outfits (Opettajan vaatima rakenne: EI items JSON-kenttää)
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS outfits (
+      id INTEGER PRIMARY KEY NOT NULL,
+      style TEXT,
+      createdAt TEXT
+    );
+  `);
 
+  // 🔗 Monesta–moneen taulu: outfit <-> clothing (opettajan vaatima rakenne)
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS outfit_clothing (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      outfitId INTEGER NOT NULL,
+      clothingId INTEGER NOT NULL,
+      FOREIGN KEY (outfitId) REFERENCES outfits(id) ON DELETE CASCADE,
+      FOREIGN KEY (clothingId) REFERENCES clothing(id) ON DELETE CASCADE
+    );
+  `);
+
+  // 🟩 Lisätään alkuperäinen clothing-data
+  for (const item of initialData) {
+    await db.runAsync(
+      'INSERT INTO clothing (name, category, season, material, color, imageUri) VALUES (?, ?, ?, ?, ?, ?);',
+      item.name,
+      item.category,
+      item.season,
+      item.material,
+      item.color,
+      Image.resolveAssetSource(item.image).uri
+    );
+  }
+};
+
+export default function App() { // 🔥 KORJAA VIIMEINEN VIRHE: export default on oltava tässä
   return (
     <SQLiteProvider
       databaseName="wardrobe.db"
