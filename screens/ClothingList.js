@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import { Alert, TextInput, View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../config/theme';
@@ -8,13 +8,24 @@ import { FontAwesome6 } from '@expo/vector-icons';
 
 export default function ClothingList() {
   const [clothes, setClothes] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const db = useSQLiteContext();
   const navigation = useNavigation();
 
   const updateList = async () => {
     if (!db) return;
+
+    let query = 'SELECT * FROM clothing';
+    let params = [];
+
+    if (searchQuery) { // Jos hakukentässä on tekstiä, suodatetaan
+      query += ' WHERE name LIKE ? OR category LIKE ? OR color LIKE ? OR material LIKE ?';
+      const likeTerm = `%${searchQuery}%`;
+      params = [likeTerm, likeTerm, likeTerm, likeTerm];
+    }
+
     try {
-      const list = await db.getAllAsync('SELECT * FROM clothing');
+      const list = await db.getAllAsync(query, params);
       setClothes(list);
     } catch (error) {
       console.error('Failed to fetch items:', error);
@@ -44,13 +55,23 @@ export default function ClothingList() {
   };
 
   const editItem = (item) => {
-    navigation.navigate('Add Clothing', { item }); 
-  };
+    navigation.navigate('Add Clothing', { item });
+  };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', updateList);
     return () => unsubscribe();
   }, [navigation]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      updateList();
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
   const renderItem = ({ item }) => (
     <View style={[globalStyles.card, { flex: 1 / 3 }]}>
@@ -82,6 +103,19 @@ export default function ClothingList() {
 
   return (
     <View style={globalStyles.container}>
+      <TextInput
+        style={{
+          height: 40,
+          borderColor: 'gray',
+          borderWidth: 1,
+          paddingHorizontal: 10,
+          marginBottom: 10, // Antaa vähän tilaa listaan
+          borderRadius: 5
+        }}
+        placeholder="Search for clothes by name, category, or color..."
+        value={searchQuery}
+        onChangeText={setSearchQuery} // Päivittää tilan syötteen muuttuessa
+      />
       <FlatList
         data={clothes}
         keyExtractor={(item) => item.id.toString()}

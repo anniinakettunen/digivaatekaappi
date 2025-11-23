@@ -13,10 +13,20 @@ export default function HomeScreen() {
   const [selectedStyle, setSelectedStyle] = useState(null);
 
   const stylesList = ['Casual', 'Formal', 'Sport', 'Party'];
-  const mainCategories = ['hat', 'top', 'bodysuit', 'bottom', 'shoes'];
+
+  // 🔥 Lisätty coat & cardigan
+  const mainCategories = [
+    'hat',
+    'top',
+    'bodysuit',
+    'bottom',
+    'shoes',
+    'coat',       // uusi
+    'cardigan'    // uusi
+  ];
+
   const accessoryCategories = ['scarf', 'jewelry', 'bag'];
 
-  // Hakee KAIKKI vaatteet karusellia varten
   const fetchClothes = async () => {
     try {
       const result = await db.getAllAsync('SELECT * FROM clothing');
@@ -26,44 +36,39 @@ export default function HomeScreen() {
     }
   };
 
-  // 1. 🔥 KORJAUS: Muutetaan logiikka käyttämään uutta moni-moneen-rakennetta
-  // Sovelluksen käynnistyksen yhteydessä haetaan viimeksi tallennettu asu
   useEffect(() => {
     const fetchData = async () => {
       await fetchClothes();
       try {
-        // Hakee viimeisen outfitin ID:n
-        const lastOutfit = await db.getFirstAsync('SELECT * FROM outfits ORDER BY id DESC LIMIT 1');
-        
+        const lastOutfit = await db.getFirstAsync(
+          'SELECT * FROM outfits ORDER BY id DESC LIMIT 1'
+        );
+
         if (lastOutfit) {
-            // Hakee asuun linkitetyt vaatteet uuden linkkitaulun kautta (Oikea rakenne)
-            const linkedItems = await db.getAllAsync(
-                `
-                SELECT clothing.*
-                FROM outfit_clothing
-                JOIN clothing ON clothing.id = outfit_clothing.clothingId
-                WHERE outfit_clothing.outfitId = ?;
-                `,
-                lastOutfit.id
-            );
-            
-            if (!selectedStyle) setSelectedStyle(lastOutfit.style);
-            // Asetetaan haetut vaatteet (items)
-            setSelectedItems(linkedItems); 
+          const linkedItems = await db.getAllAsync(
+            `
+            SELECT clothing.*
+            FROM outfit_clothing
+            JOIN clothing ON clothing.id = outfit_clothing.clothingId
+            WHERE outfit_clothing.outfitId = ?;
+            `,
+            lastOutfit.id
+          );
+
+          if (!selectedStyle) setSelectedStyle(lastOutfit.style);
+          setSelectedItems(linkedItems);
         } else {
-            if (!selectedStyle) setSelectedStyle(null);
-            setSelectedItems([]);
+          if (!selectedStyle) setSelectedStyle(null);
+          setSelectedItems([]);
         }
       } catch (error) {
         console.error('Error fetching last outfit:', error);
-        // Huom: Tämä virhe voi tulla, jos dataa ei ole vielä tallennettu uuteen rakenteeseen
       }
     };
 
     const unsubscribe = navigation.addListener('focus', fetchData);
     return () => unsubscribe();
   }, [navigation, selectedStyle]);
-
 
   const addToOutfit = (item) => {
     const alreadySelected = selectedItems.find((i) => i.category === item.category);
@@ -80,39 +85,37 @@ export default function HomeScreen() {
     setSelectedItems(selectedItems.filter((i) => i.id !== id));
   };
 
-  // 2. 🔥 KORJAUS: Muutetaan tallennus luomaan linkit (EI items-saraketta)
   const saveOutfit = async () => {
     if (!selectedStyle) return Alert.alert('Virhe', 'Valitse tyyli ennen tallennusta.');
-    if (selectedItems.length === 0) return Alert.alert('Virhe', 'Valitse vähintään yksi vaatekappale.');
+    if (selectedItems.length === 0)
+      return Alert.alert('Virhe', 'Valitse vähintään yksi vaatekappale.');
 
     try {
-        // 1. Luo uusi outfit-rivi (EI items-saraketta!)
-        const result = await db.runAsync(
-            'INSERT INTO outfits (style, createdAt) VALUES (?, ?);',
-            selectedStyle,
-            new Date().toISOString()
+      const result = await db.runAsync(
+        'INSERT INTO outfits (style, createdAt) VALUES (?, ?);',
+        selectedStyle,
+        new Date().toISOString()
+      );
+
+      const newOutfitId = result.lastInsertRowId;
+
+      for (const item of selectedItems) {
+        await db.runAsync(
+          'INSERT INTO outfit_clothing (outfitId, clothingId) VALUES (?, ?);',
+          newOutfitId,
+          item.id
         );
+      }
 
-        const newOutfitId = result.lastInsertRowId;
-
-        // 2. Luo linkit outfit_clothing-tauluun (MONI-MONEEN)
-        for (const item of selectedItems) {
-            await db.runAsync(
-            'INSERT INTO outfit_clothing (outfitId, clothingId) VALUES (?, ?);',
-            newOutfitId,
-            item.id // item.id on clothingId
-            );
-        }
-
-        Alert.alert('Saved', 'Asu tallennettu!');
+      Alert.alert('Saved', 'Asu tallennettu!');
     } catch (error) {
-        console.error('Failed to save outfit:', error);
-        // TÄMÄ VIRHE TULEE, JOS items-SARAKE ON VIELÄ JÄLJELLÄ DB:SSÄ!
-        Alert.alert('Virhe', 'Tallennus epäonnistui. Muista ajaa "npx expo start --clear".');
+      console.error('Failed to save outfit:', error);
+      Alert.alert('Virhe', 'Tallennus epäonnistui. Aja "npx expo start --clear".');
     }
   };
 
-  const getItemByCategory = (category) => selectedItems.find((item) => item.category === category);
+  const getItemByCategory = (category) =>
+    selectedItems.find((item) => item.category === category);
 
   const renderStyleCircle = (style) => {
     const isSelected = selectedStyle === style;
@@ -138,7 +141,10 @@ export default function HomeScreen() {
   };
 
   const renderCarouselItem = ({ item }) => (
-    <TouchableOpacity onPress={() => addToOutfit(item)} style={globalStyles.carouselItem}>
+    <TouchableOpacity
+      onPress={() => addToOutfit(item)}
+      style={globalStyles.carouselItem}
+    >
       <Image source={{ uri: item.imageUri }} style={globalStyles.carouselImage} />
     </TouchableOpacity>
   );
@@ -150,34 +156,73 @@ export default function HomeScreen() {
       </View>
 
       <Text style={globalStyles.title}>Your Outfit</Text>
+
       <View style={globalStyles.outfitArea}>
+        {(() => {
+          // Korut
+          const accessoryItems = accessoryCategories
+            .map(cat => getItemByCategory(cat))
+            .filter(Boolean);
 
-        {/* --- ACCESSORIES (scarf, jewelry, bag) pystyrivissä --- */}
-        <View style={globalStyles.accessoryColumn}>
-          <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-            {accessoryCategories.map((category) => {
-              const item = getItemByCategory(category);
-              return item ? (
-                <TouchableOpacity
-                  key={item.id}
-                  onPress={() => removeFromOutfit(item.id)}
-                  style={globalStyles.accessoryItem}
-                >
-                  <Image source={{ uri: item.imageUri }} style={globalStyles.accessoryImage} />
-                  <Text style={globalStyles.outfitLabel}>{category.toUpperCase()}</Text>
-                </TouchableOpacity>
-              ) : null;
-            })}
-          </View>
-        </View>
+          const chunkArray = (arr, size) => {
+            const chunks = [];
+            for (let i = 0; i < arr.length; i += size) {
+              chunks.push(arr.slice(i, i + size));
+            }
+            return chunks;
+          };
 
-        {/* --- MAIN CATEGORIES (4 vaatetta per pystyrivi, seuraava sarake oikealle) --- */}
+          const accessoryColumns = chunkArray(accessoryItems, 4);
+
+          // Takki & neuletakki
+          const coatItems = ['coat', 'cardigan']
+            .map(cat => getItemByCategory(cat))
+            .filter(Boolean);
+
+          return (
+            <View style={{ flexDirection: 'row', marginRight: 12 }}>
+              {/* Korut */}
+              {accessoryColumns.map((col, index) => (
+                <View key={index} style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
+                  {col.map(item => (
+                    <TouchableOpacity
+                      key={item.id}
+                      onPress={() => removeFromOutfit(item.id)}
+                      style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                    >
+                      <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                      <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))}
+
+              {/* Takki & neuletakki omalla sarakkeella vasemmalle */}
+              {coatItems.length > 0 && (
+                <View style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
+                  {coatItems.map(item => (
+                    <TouchableOpacity
+                      key={item.id}
+                      onPress={() => removeFromOutfit(item.id)}
+                      style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                    >
+                      <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                      <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          );
+        })()}
+
+        {/* Main items pysyy ennallaan */}
         {(() => {
           const mainItems = mainCategories
+            .filter(cat => cat !== 'coat' && cat !== 'cardigan')
             .map((category) => getItemByCategory(category))
             .filter(Boolean);
 
-          // Jaetaan joka 4. item uusiin sarakkeisiin
           const chunkArray = (arr, size) => {
             const chunks = [];
             for (let i = 0; i < arr.length; i += size) {
@@ -189,7 +234,13 @@ export default function HomeScreen() {
           const columns = chunkArray(mainItems, 4);
 
           return (
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'stretch' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'stretch'
+              }}
+            >
               {columns.map((colItems, colIndex) => (
                 <View
                   key={`col-${colIndex}`}
@@ -197,7 +248,8 @@ export default function HomeScreen() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     marginHorizontal: 6,
-                    justifyContent: colIndex % 2 === 1 ? 'flex-end' : 'flex-start', // parilliset ylhäältä, parittomat alhaalta
+                    justifyContent:
+                      colIndex % 2 === 1 ? 'flex-end' : 'flex-start'
                   }}
                 >
                   {colItems.map((item) => (
@@ -220,12 +272,16 @@ export default function HomeScreen() {
             </View>
           );
         })()}
-
       </View>
+
 
       {selectedItems.length > 0 && (
         <View style={globalStyles.saveButton}>
-          <Button title="Save Outfit" onPress={saveOutfit} color={theme.colors.primary} />
+          <Button
+            title="Save Outfit"
+            onPress={saveOutfit}
+            color={theme.colors.primary}
+          />
         </View>
       )}
 

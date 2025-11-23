@@ -16,7 +16,17 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { globalStyles } from '../config/GlobalStyles';
 
-const categories = ['top', 'bottom', 'shoes', 'bodysuit', 'bag', 'hat'];
+const categories = [
+  'top',
+  'bottom',
+  'shoes',
+  'bodysuit',
+  'bag',
+  'hat',
+  'coat',       // 🔥 lisätty
+  'cardigan'    // 🔥 lisätty
+];
+
 const seasons = ['summer', 'autumn', 'winter', 'spring'];
 
 export default function AddClothingScreen() {
@@ -63,7 +73,8 @@ export default function AddClothingScreen() {
         text: 'Take photo',
         onPress: async () => {
           const { status } = await ImagePicker.requestCameraPermissionsAsync();
-          if (status !== 'granted') return Alert.alert('Permission denied', 'Camera access is needed.');
+          if (status !== 'granted')
+            return Alert.alert('Permission denied', 'Camera access is needed.');
           const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 1 });
           if (!result.canceled && result.assets?.length > 0) setImageUri(result.assets[0].uri);
         },
@@ -72,8 +83,13 @@ export default function AddClothingScreen() {
         text: 'Choose from gallery',
         onPress: async () => {
           const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-          if (status !== 'granted') return Alert.alert('Permission denied', 'Gallery access is needed.');
-          const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 1 });
+          if (status !== 'granted')
+            return Alert.alert('Permission denied', 'Gallery access is needed.');
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1
+          });
           if (!result.canceled && result.assets?.length > 0) setImageUri(result.assets[0].uri);
         },
       },
@@ -82,9 +98,8 @@ export default function AddClothingScreen() {
   };
 
   const saveClothing = async () => {
-    if (!name.trim() || !category || !season || !imageUri) {
+    if (!name.trim() || !category || !season || !imageUri)
       return Alert.alert('Missing fields', 'Please fill in all required fields and add an image.');
-    }
 
     try {
       if (editingItem) {
@@ -99,7 +114,9 @@ export default function AddClothingScreen() {
           editingItem.id
         );
         navigation.setParams({ item: undefined });
-        Alert.alert('Updated', 'Clothing updated!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+        Alert.alert('Updated', 'Clothing updated!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
       } else {
         await db.runAsync(
           'INSERT INTO clothing (name, category, season, material, color, imageUri) VALUES (?, ?, ?, ?, ?, ?);',
@@ -110,7 +127,9 @@ export default function AddClothingScreen() {
           color.trim(),
           imageUri
         );
-        Alert.alert('Saved', 'Clothing saved!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+        Alert.alert('Saved', 'Clothing saved!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
       }
     } catch (error) {
       console.error(error);
@@ -119,7 +138,11 @@ export default function AddClothingScreen() {
   };
 
   const renderDropdown = (field, options, value, setValue) => (
-    <Modal transparent visible={dropdownVisible.visible && dropdownVisible.field === field} animationType="fade">
+    <Modal
+      transparent
+      visible={dropdownVisible.visible && dropdownVisible.field === field}
+      animationType="fade"
+    >
       <TouchableOpacity
         style={globalStyles.addClothing.modalOverlay}
         activeOpacity={1}
@@ -153,36 +176,68 @@ export default function AddClothingScreen() {
         style={globalStyles.addClothing.dropdownButton}
         onPress={() => setDropdownVisible({ field, visible: true })}
       >
-        <Text style={{ color: value ? '#000' : '#888' }}>{value || `Select ${label.toLowerCase()}...`}</Text>
+        <Text style={{ color: value ? '#000' : '#888' }}>
+          {value || `Select ${label.toLowerCase()}...`}
+        </Text>
       </TouchableOpacity>
       {renderDropdown(field, options, value, setValue)}
     </View>
   );
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <View style={globalStyles.addClothing.container}>
         <Text style={globalStyles.addClothing.title}>Add Clothing</Text>
 
         <View style={globalStyles.addClothing.imageWrapper}>
-          <TouchableOpacity style={globalStyles.addClothing.imagePicker} onPress={pickImage}>
+          <TouchableOpacity
+            style={globalStyles.addClothing.imagePicker}
+            onPress={pickImage}
+          >
             {imageUri ? (
               <Image source={{ uri: imageUri }} style={globalStyles.addClothing.image} />
             ) : (
-              <Text style={globalStyles.addClothing.imagePlaceholder}>Tap to add photo</Text>
+              <Text style={globalStyles.addClothing.imagePlaceholder}>
+                Tap to add photo
+              </Text>
             )}
           </TouchableOpacity>
         </View>
 
-        <TextInput style={globalStyles.addClothing.input} placeholder="Clothing name" value={name} onChangeText={setName} />
+        <TextInput
+          style={globalStyles.addClothing.input}
+          placeholder="Clothing name"
+          value={name}
+          onChangeText={setName}
+        />
+
         {renderDropdownField('Category', 'category', categories, category, setCategory)}
         {renderDropdownField('Season', 'season', seasons, season, setSeason)}
 
-        <TextInput style={globalStyles.addClothing.input} placeholder="Material" value={material} onChangeText={setMaterial} />
-        <TextInput style={globalStyles.addClothing.input} placeholder="Color" value={color} onChangeText={setColor} />
+        <TextInput
+          style={globalStyles.addClothing.input}
+          placeholder="Material"
+          value={material}
+          onChangeText={setMaterial}
+        />
 
-        <TouchableOpacity style={globalStyles.addClothing.saveButton} onPress={saveClothing}>
-          <Text style={globalStyles.addClothing.saveText}>{editingItem ? 'Update' : 'Save'}</Text>
+        <TextInput
+          style={globalStyles.addClothing.input}
+          placeholder="Color"
+          value={color}
+          onChangeText={setColor}
+        />
+
+        <TouchableOpacity
+          style={globalStyles.addClothing.saveButton}
+          onPress={saveClothing}
+        >
+          <Text style={globalStyles.addClothing.saveText}>
+            {editingItem ? 'Update' : 'Save'}
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
