@@ -10,6 +10,7 @@ import {
   Modal,
   FlatList,
   Alert,
+  ImageBackground
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -185,11 +186,16 @@ export default function AddClothingScreen() {
   );
 
   return (
+    <ImageBackground
+          source={require('../assets/taustakuva.jpg')}
+          style={{ flex: 1 }}
+          resizeMode="cover"
+        >
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={globalStyles.addClothing.container}>
+      <View style={[globalStyles.addClothing.container, { backgroundColor: 'rgba(255,255,255,0.4)' }]}>
         <Text style={globalStyles.addClothing.title}>Add Clothing</Text>
 
         <View style={globalStyles.addClothing.imageWrapper}>
@@ -241,5 +247,6 @@ export default function AddClothingScreen() {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }

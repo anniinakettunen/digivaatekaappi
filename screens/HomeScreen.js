@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, Button, Alert } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, Button, Alert, ImageBackground } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../config/theme';
@@ -150,152 +150,158 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={globalStyles.container}>
-      <View style={globalStyles.styleRow}>
-        {stylesList.map(renderStyleCircle)}
-      </View>
+    <ImageBackground
+      source={require('../assets/taustakuva.jpg')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={[globalStyles.container, { backgroundColor: 'rgba(255,255,255,0.4)' }]}>
+        <View style={globalStyles.styleRow}>
+          {stylesList.map(renderStyleCircle)}
+        </View>
 
-      <Text style={globalStyles.title}>Your Outfit</Text>
+        <Text style={globalStyles.title}>Your Outfit</Text>
 
-      <View style={globalStyles.outfitArea}>
-        {(() => {
-          // Korut
-          const accessoryItems = accessoryCategories
-            .map(cat => getItemByCategory(cat))
-            .filter(Boolean);
+        <View style={globalStyles.outfitArea}>
+          {(() => {
+            // Korut
+            const accessoryItems = accessoryCategories
+              .map(cat => getItemByCategory(cat))
+              .filter(Boolean);
 
-          const chunkArray = (arr, size) => {
-            const chunks = [];
-            for (let i = 0; i < arr.length; i += size) {
-              chunks.push(arr.slice(i, i + size));
-            }
-            return chunks;
-          };
+            const chunkArray = (arr, size) => {
+              const chunks = [];
+              for (let i = 0; i < arr.length; i += size) {
+                chunks.push(arr.slice(i, i + size));
+              }
+              return chunks;
+            };
 
-          const accessoryColumns = chunkArray(accessoryItems, 4);
+            const accessoryColumns = chunkArray(accessoryItems, 4);
 
-          // Takki & neuletakki
-          const coatItems = ['coat', 'cardigan']
-            .map(cat => getItemByCategory(cat))
-            .filter(Boolean);
+            // Takki & neuletakki
+            const coatItems = ['coat', 'cardigan']
+              .map(cat => getItemByCategory(cat))
+              .filter(Boolean);
 
-          return (
-            <View style={{ flexDirection: 'row', marginRight: 12 }}>
-              {/* Korut */}
-              {accessoryColumns.map((col, index) => (
-                <View key={index} style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
-                  {col.map(item => (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => removeFromOutfit(item.id)}
-                      style={[globalStyles.outfitItem, { marginVertical: 6 }]}
-                    >
-                      <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
-                      <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
+            return (
+              <View style={{ flexDirection: 'row', marginRight: 12 }}>
+                {/* Korut */}
+                {accessoryColumns.map((col, index) => (
+                  <View key={index} style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
+                    {col.map(item => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => removeFromOutfit(item.id)}
+                        style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                      >
+                        <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                        <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ))}
 
-              {/* Takki & neuletakki omalla sarakkeella vasemmalle */}
-              {coatItems.length > 0 && (
-                <View style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
-                  {coatItems.map(item => (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => removeFromOutfit(item.id)}
-                      style={[globalStyles.outfitItem, { marginVertical: 6 }]}
-                    >
-                      <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
-                      <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-          );
-        })()}
+                {/* Takki & neuletakki omalla sarakkeella vasemmalle */}
+                {coatItems.length > 0 && (
+                  <View style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
+                    {coatItems.map(item => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => removeFromOutfit(item.id)}
+                        style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                      >
+                        <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                        <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            );
+          })()}
 
-        {/* Main items pysyy ennallaan */}
-        {(() => {
-          const mainItems = mainCategories
-            .filter(cat => cat !== 'coat' && cat !== 'cardigan')
-            .map((category) => getItemByCategory(category))
-            .filter(Boolean);
+          {/* Main items pysyy ennallaan */}
+          {(() => {
+            const mainItems = mainCategories
+              .filter(cat => cat !== 'coat' && cat !== 'cardigan')
+              .map((category) => getItemByCategory(category))
+              .filter(Boolean);
 
-          const chunkArray = (arr, size) => {
-            const chunks = [];
-            for (let i = 0; i < arr.length; i += size) {
-              chunks.push(arr.slice(i, i + size));
-            }
-            return chunks;
-          };
+            const chunkArray = (arr, size) => {
+              const chunks = [];
+              for (let i = 0; i < arr.length; i += size) {
+                chunks.push(arr.slice(i, i + size));
+              }
+              return chunks;
+            };
 
-          const columns = chunkArray(mainItems, 4);
+            const columns = chunkArray(mainItems, 4);
 
-          return (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'stretch'
-              }}
-            >
-              {columns.map((colItems, colIndex) => (
-                <View
-                  key={`col-${colIndex}`}
-                  style={{
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    marginHorizontal: 6,
-                    justifyContent:
-                      colIndex % 2 === 1 ? 'flex-end' : 'flex-start'
-                  }}
-                >
-                  {colItems.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => removeFromOutfit(item.id)}
-                      style={[globalStyles.outfitItem, { marginVertical: 6 }]}
-                    >
-                      <Image
-                        source={{ uri: item.imageUri }}
-                        style={globalStyles.outfitImage}
-                      />
-                      <Text style={globalStyles.outfitLabel}>
-                        {item.category.toUpperCase()}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
-            </View>
-          );
-        })()}
-      </View>
+            return (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'stretch'
+                }}
+              >
+                {columns.map((colItems, colIndex) => (
+                  <View
+                    key={`col-${colIndex}`}
+                    style={{
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      marginHorizontal: 6,
+                      justifyContent:
+                        colIndex % 2 === 1 ? 'flex-end' : 'flex-start'
+                    }}
+                  >
+                    {colItems.map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => removeFromOutfit(item.id)}
+                        style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                      >
+                        <Image
+                          source={{ uri: item.imageUri }}
+                          style={globalStyles.outfitImage}
+                        />
+                        <Text style={globalStyles.outfitLabel}>
+                          {item.category.toUpperCase()}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ))}
+              </View>
+            );
+          })()}
+        </View>
 
 
-      {selectedItems.length > 0 && (
-        <View style={globalStyles.saveButton}>
-          <Button
-            title="Save Outfit"
-            onPress={saveOutfit}
-            color={theme.colors.primary}
+        {selectedItems.length > 0 && (
+          <View style={globalStyles.saveButton}>
+            <Button
+              title="Save Outfit"
+              onPress={saveOutfit}
+              color={theme.colors.primary}
+            />
+          </View>
+        )}
+
+        <View style={globalStyles.carouselWrapper}>
+          <Text style={globalStyles.subtitle}>All Clothes</Text>
+          <FlatList
+            data={clothes}
+            horizontal
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderCarouselItem}
+            contentContainerStyle={globalStyles.carouselList}
+            showsHorizontalScrollIndicator={false}
           />
         </View>
-      )}
-
-      <View style={globalStyles.carouselWrapper}>
-        <Text style={globalStyles.subtitle}>All Clothes</Text>
-        <FlatList
-          data={clothes}
-          horizontal
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderCarouselItem}
-          contentContainerStyle={globalStyles.carouselList}
-          showsHorizontalScrollIndicator={false}
-        />
       </View>
-    </View>
+    </ImageBackground>
   );
 }

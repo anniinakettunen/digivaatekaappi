@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, TextInput, View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import { Alert, TextInput, View, Text, FlatList, Image, TouchableOpacity, ImageBackground } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
 import { theme } from '../config/theme';
@@ -18,7 +18,7 @@ export default function ClothingList() {
     let query = 'SELECT * FROM clothing';
     let params = [];
 
-    if (searchQuery) { // Jos hakukentässä on tekstiä, suodatetaan
+    if (searchQuery) {
       query += ' WHERE name LIKE ? OR category LIKE ? OR color LIKE ? OR material LIKE ?';
       const likeTerm = `%${searchQuery}%`;
       params = [likeTerm, likeTerm, likeTerm, likeTerm];
@@ -102,30 +102,37 @@ export default function ClothingList() {
   );
 
   return (
-    <View style={globalStyles.container}>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: 'gray',
-          borderWidth: 1,
-          paddingHorizontal: 10,
-          marginBottom: 10, // Antaa vähän tilaa listaan
-          borderRadius: 5
-        }}
-        placeholder="Search for clothes by name, category, or color..."
-        value={searchQuery}
-        onChangeText={setSearchQuery} // Päivittää tilan syötteen muuttuessa
-      />
-      <FlatList
-        data={clothes}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        numColumns={3}
-        refreshing={false}
-        onRefresh={updateList}
-        contentContainerStyle={{ paddingBottom: theme.spacing.large }}
-        ListEmptyComponent={<Text style={[globalStyles.subtitle, { textAlign: 'center', marginTop: 30 }]}>No clothing saved yet.</Text>}
-      />
-    </View>
+    <ImageBackground
+      source={require('../assets/taustakuva.jpg')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={[globalStyles.container, { backgroundColor: 'rgba(255,255,255,0.4)' }]}>
+        <TextInput
+          style={{
+            height: 40,
+            borderColor: 'gray',
+            borderWidth: 1,
+            paddingHorizontal: 10,
+            marginBottom: 10,
+            borderRadius: 5,
+            backgroundColor: 'rgba(255,255,255,0.8)', // valkoinen kenttä vähän läpinäkyväksi, ei peitä taustaa täysin
+          }}
+          placeholder="Search for clothes by name, category, or color..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <FlatList
+          data={clothes}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          numColumns={3}
+          refreshing={false}
+          onRefresh={updateList}
+          contentContainerStyle={{ paddingBottom: theme.spacing.large }}
+          ListEmptyComponent={<Text style={[globalStyles.subtitle, { textAlign: 'center', marginTop: 30 }]}>No clothing saved yet.</Text>}
+        />
+      </View>
+    </ImageBackground>
   );
 }

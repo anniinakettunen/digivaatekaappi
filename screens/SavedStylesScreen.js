@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Image } from 'react-native';
+import { View, FlatList, Image, ImageBackground } from 'react-native';
 import { Card, Text, Button, Provider as PaperProvider } from 'react-native-paper';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useNavigation } from '@react-navigation/native';
@@ -17,9 +17,6 @@ export default function SavedStylesScreen() {
     return () => unsubscribe();
   }, [navigation]);
 
-  /**
-   * 🔍 Hakee kaikki outfitit JA niiden vaatteet
-   */
   const fetchOutfits = async () => {
     const outfitRows = await db.getAllAsync(
       `SELECT * FROM outfits ORDER BY createdAt DESC;`
@@ -40,75 +37,80 @@ export default function SavedStylesScreen() {
 
       fullOutfits.push({
         ...outfit,
-        items: clothingItems, // 🔄 lisätään vaatteet tähän
+        items: clothingItems,
       });
     }
 
     setOutfits(fullOutfits);
   };
 
-  /**
-   * 🗑 Poistaa asun + siihen liittyvät outfit_clothing -linkit
-   */
   const deleteOutfit = async (id) => {
     await db.runAsync(`DELETE FROM outfits WHERE id = ?;`, id);
     fetchOutfits();
   };
 
-  const renderOutfit = ({ item }) => {
-    return (
-      <Card style={globalStyles.card}>
-        <Card.Title title={item.style} />
-        <Card.Content>
-          <View style={globalStyles.imageRow}>
-            {item.items.map((clothing) => (
-              <Image
-                key={clothing.id}
-                source={{ uri: clothing.imageUri }}
-                style={globalStyles.image}
-              />
-            ))}
-          </View>
+  const renderOutfit = ({ item }) => (
+    <Card style={globalStyles.card}>
+      <Card.Title title={item.style} />
+      <Card.Content>
+        <View style={globalStyles.imageRow}>
+          {item.items.map((clothing) => (
+            <Image
+              key={clothing.id}
+              source={{ uri: clothing.imageUri }}
+              style={globalStyles.image}
+            />
+          ))}
+        </View>
 
-          <Text style={globalStyles.savedText}>
-            Saved: {new Date(item.createdAt).toLocaleString()}
-          </Text>
+        <Text style={globalStyles.savedText}>
+          Saved: {new Date(item.createdAt).toLocaleString()}
+        </Text>
 
-          <View style={globalStyles.buttonRow}>
-            <Button
-              mode="contained"
-              onPress={() => navigation.navigate('EditOutFit', { outfitId: item.id })}
-              style={[globalStyles.button, { backgroundColor: theme.colors.primary }]}
-            >
-              Update
-            </Button>
+        <View style={globalStyles.buttonRow}>
+          <Button
+            mode="contained"
+            onPress={() =>
+              navigation.navigate('EditOutFit', { outfitId: item.id })
+            }
+            style={[globalStyles.button, { backgroundColor: theme.colors.primary }]}
+          >
+            Update
+          </Button>
 
-            <Button
-              mode="contained"
-              onPress={() => deleteOutfit(item.id)}
-              style={[globalStyles.button, { backgroundColor: theme.colors.error }]}
-            >
-              Delete
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
-    );
-  };
+          <Button
+            mode="contained"
+            onPress={() => deleteOutfit(item.id)}
+            style={[globalStyles.button, { backgroundColor: theme.colors.error }]}
+          >
+            Delete
+          </Button>
+        </View>
+      </Card.Content>
+    </Card>
+  );
 
   return (
     <PaperProvider>
-      <View style={globalStyles.container}>
-        <Text variant="headlineMedium" style={globalStyles.title}>
-          Saved Outfits
-        </Text>
+      <ImageBackground
+        source={require('../assets/taustakuva.jpg')}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <View style={[globalStyles.container, { backgroundColor: 'rgba(255,255,255,0.4)' }]}>
+          <Text variant="headlineMedium" style={globalStyles.title}>
+            Saved Outfits
+          </Text>
 
-        <FlatList
-          data={outfits}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderOutfit}
-        />
-      </View>
+          <FlatList
+            data={outfits}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderOutfit}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            style={{ flex: 1 }}
+          />
+        </View>
+      </ImageBackground>
     </PaperProvider>
   );
 }

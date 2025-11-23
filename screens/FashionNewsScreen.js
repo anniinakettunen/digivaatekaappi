@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, ImageBackground, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '../config/theme';
 import { globalStyles } from '../config/GlobalStyles';
@@ -37,7 +37,7 @@ export default function FashionNewsScreen() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={globalStyles.newsCard}
+      style={[globalStyles.newsCard, { backgroundColor: 'rgba(255,255,255,0.8)' }]} // hieman läpinäkyvä kortti
       onPress={() => item.link && Linking.openURL(item.link)}
     >
       {item.image_url ? (
@@ -55,15 +55,21 @@ export default function FashionNewsScreen() {
   );
 
   return (
-    <View style={globalStyles.container}>
-      <FlatList
-        data={articles}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={globalStyles.newsListContent}
-        refreshing={loading}
-        onRefresh={fetchFashionNews}
-      />
-    </View>
+    <ImageBackground
+      source={require('../assets/taustakuva.jpg')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={[globalStyles.container, { backgroundColor: 'transparent', padding: 10 }]}>
+        <FlatList
+          data={articles}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          refreshing={loading}
+          onRefresh={fetchFashionNews}
+        />
+      </View>
+    </ImageBackground>
   );
 }
