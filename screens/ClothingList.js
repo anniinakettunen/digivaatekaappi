@@ -44,8 +44,8 @@ export default function ClothingList() {
   };
 
   const editItem = (item) => {
-    navigation.navigate('Add New', { item });
-  };
+    navigation.navigate('Add Clothing', { item }); 
+  };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', updateList);
