@@ -19,5 +19,5 @@ Digitaalinen vaatekaappi
 | Karuselli / horisontaalinen FlatList      |                  | ✅ UI hienosäätö, horisontaalinen scroll; [FlatList Docs](https://reactnative.dev/docs/flatlist) |
 | Interaktiiviset tyyli-valinnat            |                  | ✅ Custom component logic, itse suunniteltu |
 | Tab-navigoinnin & ikonien customointi     |                  | ✅ TabBarActiveTintColor, headerStyle; [React Navigation Bottom Tabs](https://reactnavigation.org/docs/bottom-tab-navigator/) |
-| ImageBackground + overlay                  | ✅ Visuaalinen UI |                                  |
-| Flexbox layout                             | ✅ Layout hallinta |                                  |
+| ImageBackground + overlay | ✅ Visuaalinen UI | [ImageBackground](https://reactnative.dev/docs/imagebackground) |
+                                
