@@ -18,6 +18,6 @@ Digitaalinen vaatekaappi
 | SavedStylesScreen logic                    |                  |  Render outfits, edit & delete; itse suunniteltu sovelluksen logiikka |
 | Karuselli / horisontaalinen FlatList      |                  |  UI hienosäätö, horisontaalinen scroll; [FlatList Docs](https://reactnative.dev/docs/flatlist) |
 | Interaktiiviset tyyli-valinnat            |                  |  Custom component logic, itse suunniteltu |
-| Tab-navigoinnin & ikonien customointi     |  |                     TabBarActiveTintColor, headerStyle, ikonien tuonti (@expo/vector-icons, lucide-react-native); React Navigation Bottom Tabs              |
+| Tab-navigoinnin & ikonien customointi     |  | ✅ TabBarActiveTintColor, headerStyle, ikonien tuonti (@expo/vector-icons, lucide-react-native); [React Navigation Bottom Tabs](https://reactnavigation.org/docs/bottom-tab-navigator/) |
 | ImageBackground + overlay |  |  Visuaalinen UI[ImageBackground](https://reactnative.dev/docs/imagebackground) |
                                 
