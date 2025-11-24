@@ -20,4 +20,38 @@ Digitaalinen vaatekaappi
 | Interaktiiviset tyyli-valinnat            |                  |  Custom component logic, itse suunniteltu |
 | Tab-navigoinnin & ikonien customointi     |  |  TabBarActiveTintColor, headerStyle, ikonien tuonti (@expo/vector-icons, lucide-react-native); [React Navigation Bottom Tabs](https://reactnavigation.org/docs/bottom-tab-navigator/) |
 | ImageBackground + overlay |  |  Visuaalinen UI[ImageBackground](https://reactnative.dev/docs/imagebackground) |
+
+# Digitaalisen Vaatekaapin Tietoturvallinen Arkkitehtuuri – Tiivistelmä
+
+## Sovelluksen rakenne
+Digitaalinen vaatekaappisovellus on toteutettu **React Native** -kehyksellä ja hyödyntää **Expo SQLite** -tietokantaa pysyvään tallennukseen. Arkkitehtuuri on modulaarinen ja sisältää useita näkymiä:
+- **HomeScreen**: asujen rakentaminen ja tallennus  
+- **AddClothingScreen**: vaatteiden luonti ja muokkaus  
+- **ClothingList**: vaatteiden haku ja hallinta  
+- **SavedStylesScreen**: tallennettujen asujen selaus  
+
+Tietokantamalli koostuu kolmesta taulusta:
+- **clothing**  
+- **outfits**  
+- **outfit_clothing** (monesta-moneen-suhde: yksi vaate voi kuulua useaan asuun ja yksi asu sisältää useita vaatteita)
+
+---
+
+## SQL-injektion torjunta
+**SQL Injection** on tietoturvariski, jossa haitallinen syöte pyrkii muuttamaan kyselyn rakennetta. Tyypillisiä hyökkäyksiä ovat:
+- `OR 1=1` -ehdot luvattoman datan saamiseksi  
+- **UNION**-hyökkäykset tietojen yhdistämiseksi useista tauluista  
+- **DROP TABLE** -komennot taulujen tuhoamiseksi  
+
+Sovellus eliminoi nämä riskit käyttämällä **parametrisoituja kyselyitä** kaikissa näkymissä.  
+
+### Turvallinen toteutus
+Expo SQLite -API:n metodit (`db.runAsync`, `db.getAllAsync`, `db.getFirstAsync`) erottavat SQL-komennon ja käyttäjän syötteen. Käyttäjän arvot välitetään erillisinä parametreina (`?`), jolloin ne tulkitaan datana eivätkä voi muuttaa kyselyn logiikkaa.  
+
+Esimerkki ClothingList-näkymästä:
+```javascript
+query += ' WHERE name LIKE ? OR category LIKE ?';
+params = [likeTerm, likeTerm];
+const list = await db.getAllAsync(query, params);
+
                                 
