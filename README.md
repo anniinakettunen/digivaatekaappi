@@ -54,4 +54,9 @@ query += ' WHERE name LIKE ? OR category LIKE ?';
 params = [likeTerm, likeTerm];
 const list = await db.getAllAsync(query, params);
 
+## Lähteet
+- [W3Schools: SQL Injection](https://www.w3schools.com/sql/sql_injection.asp)  
+- [GeeksforGeeks: SQL Injection Union Attacks](https://www.geeksforgeeks.org/ethical-hacking/what-is-sql-injection-union-attacks/)
+
+
                                 
