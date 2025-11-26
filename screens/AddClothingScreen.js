@@ -24,8 +24,8 @@ const categories = [
   'bodysuit',
   'bag',
   'hat',
-  'coat',       // 🔥 lisätty
-  'cardigan'    // 🔥 lisätty
+  'coat',
+  'cardigan'
 ];
 
 const seasons = ['summer', 'autumn', 'winter', 'spring'];
@@ -87,9 +87,9 @@ export default function AddClothingScreen() {
           if (status !== 'granted')
             return Alert.alert('Permission denied', 'Gallery access is needed.');
           const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
-            quality: 1
+            quality: 1,
           });
           if (!result.canceled && result.assets?.length > 0) setImageUri(result.assets[0].uri);
         },
@@ -187,66 +187,66 @@ export default function AddClothingScreen() {
 
   return (
     <ImageBackground
-          source={require('../assets/taustakuva.jpg')}
-          style={{ flex: 1 }}
-          resizeMode="cover"
-        >
-    <KeyboardAvoidingView
+      source={require('../assets/taustakuva.jpg')}
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      resizeMode="cover"
     >
-      <View style={[globalStyles.addClothing.container, { backgroundColor: 'rgba(255,255,255,0.4)' }]}>
-        <Text style={globalStyles.addClothing.title}>Add Clothing</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={[globalStyles.addClothing.container, { backgroundColor: 'rgba(255,255,255,0.4)' }]}>
+          <Text style={globalStyles.addClothing.title}>Add Clothing</Text>
 
-        <View style={globalStyles.addClothing.imageWrapper}>
+          <View style={globalStyles.addClothing.imageWrapper}>
+            <TouchableOpacity
+              style={globalStyles.addClothing.imagePicker}
+              onPress={pickImage}
+            >
+              {imageUri ? (
+                <Image source={{ uri: imageUri }} style={globalStyles.addClothing.image} />
+              ) : (
+                <Text style={globalStyles.addClothing.imagePlaceholder}>
+                  Tap to add photo
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <TextInput
+            style={globalStyles.addClothing.input}
+            placeholder="Clothing name"
+            value={name}
+            onChangeText={setName}
+          />
+
+          {renderDropdownField('Category', 'category', categories, category, setCategory)}
+          {renderDropdownField('Season', 'season', seasons, season, setSeason)}
+
+          <TextInput
+            style={globalStyles.addClothing.input}
+            placeholder="Material"
+            value={material}
+            onChangeText={setMaterial}
+          />
+
+          <TextInput
+            style={globalStyles.addClothing.input}
+            placeholder="Color"
+            value={color}
+            onChangeText={setColor}
+          />
+
           <TouchableOpacity
-            style={globalStyles.addClothing.imagePicker}
-            onPress={pickImage}
+            style={globalStyles.addClothing.saveButton}
+            onPress={saveClothing}
           >
-            {imageUri ? (
-              <Image source={{ uri: imageUri }} style={globalStyles.addClothing.image} />
-            ) : (
-              <Text style={globalStyles.addClothing.imagePlaceholder}>
-                Tap to add photo
-              </Text>
-            )}
+            <Text style={globalStyles.addClothing.saveText}>
+              {editingItem ? 'Update' : 'Save'}
+            </Text>
           </TouchableOpacity>
         </View>
-
-        <TextInput
-          style={globalStyles.addClothing.input}
-          placeholder="Clothing name"
-          value={name}
-          onChangeText={setName}
-        />
-
-        {renderDropdownField('Category', 'category', categories, category, setCategory)}
-        {renderDropdownField('Season', 'season', seasons, season, setSeason)}
-
-        <TextInput
-          style={globalStyles.addClothing.input}
-          placeholder="Material"
-          value={material}
-          onChangeText={setMaterial}
-        />
-
-        <TextInput
-          style={globalStyles.addClothing.input}
-          placeholder="Color"
-          value={color}
-          onChangeText={setColor}
-        />
-
-        <TouchableOpacity
-          style={globalStyles.addClothing.saveButton}
-          onPress={saveClothing}
-        >
-          <Text style={globalStyles.addClothing.saveText}>
-            {editingItem ? 'Update' : 'Save'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }

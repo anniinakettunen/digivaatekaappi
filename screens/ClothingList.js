@@ -116,7 +116,7 @@ export default function ClothingList() {
             paddingHorizontal: 10,
             marginBottom: 10,
             borderRadius: 5,
-            backgroundColor: 'rgba(255,255,255,0.8)', // valkoinen kenttä vähän läpinäkyväksi, ei peitä taustaa täysin
+            backgroundColor: 'rgba(255,255,255,0.8)', 
           }}
           placeholder="Search for clothes by name, category, or color..."
           value={searchQuery}

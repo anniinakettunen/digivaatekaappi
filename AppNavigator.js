@@ -5,7 +5,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Handbag } from 'lucide-react-native';
-import { theme } from './config/theme'; // 🟣 tuodaan väriteema
+import { theme } from './config/theme'; 
 
 // Näytöt
 import HomeScreen from './screens/HomeScreen';
@@ -24,14 +24,14 @@ export function BottomTabs() {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: theme.colors.surface, // yläpalkin tausta         
+          backgroundColor: theme.colors.surface,         
         },
         headerTitleAlign: 'center',
-        headerTintColor: theme.colors.textPrimary, // otsikon väri
-        tabBarActiveTintColor: theme.colors.primary, // aktiivinen väri
-        tabBarInactiveTintColor: theme.colors.textSecondary, // passiivinen väri
+        headerTintColor: theme.colors.textPrimary, 
+        tabBarActiveTintColor: theme.colors.primary, 
+        tabBarInactiveTintColor: theme.colors.textSecondary, 
         tabBarStyle: {
-          backgroundColor: theme.colors.background, // tabbarin tausta
+          backgroundColor: theme.colors.background, 
           borderTopColor: theme.colors.border,
           paddingBottom: 5,
           height: 60,
