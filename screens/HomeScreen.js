@@ -14,15 +14,15 @@ export default function HomeScreen() {
 
   const stylesList = ['Casual', 'Formal', 'Sport', 'Party'];
 
-  // 🔥 Lisätty coat & cardigan
+ 
   const mainCategories = [
     'hat',
     'top',
     'bodysuit',
     'bottom',
     'shoes',
-    'coat',       // uusi
-    'cardigan'    // uusi
+    'coat',       
+    'cardigan'    
   ];
 
   const accessoryCategories = ['scarf', 'jewelry', 'bag'];
@@ -86,9 +86,9 @@ export default function HomeScreen() {
   };
 
   const saveOutfit = async () => {
-    if (!selectedStyle) return Alert.alert('Virhe', 'Valitse tyyli ennen tallennusta.');
+    if (!selectedStyle) return Alert.alert('Error', 'Choose style before saving.');
     if (selectedItems.length === 0)
-      return Alert.alert('Virhe', 'Valitse vähintään yksi vaatekappale.');
+      return Alert.alert('Error', 'Choose at least one item.');
 
     try {
       const result = await db.runAsync(
@@ -107,10 +107,10 @@ export default function HomeScreen() {
         );
       }
 
-      Alert.alert('Saved', 'Asu tallennettu!');
+      Alert.alert('Saved', 'Outfit saved!');
     } catch (error) {
       console.error('Failed to save outfit:', error);
-      Alert.alert('Virhe', 'Tallennus epäonnistui. Aja "npx expo start --clear".');
+      Alert.alert('Error', 'Failed to save. Run "npx expo start --clear".');
     }
   };
 
@@ -179,7 +179,7 @@ export default function HomeScreen() {
 
             const accessoryColumns = chunkArray(accessoryItems, 4);
 
-            // Takki & neuletakki
+            
             const coatItems = ['coat', 'cardigan']
               .map(cat => getItemByCategory(cat))
               .filter(Boolean);
@@ -202,7 +202,7 @@ export default function HomeScreen() {
                   </View>
                 ))}
 
-                {/* Takki & neuletakki omalla sarakkeella vasemmalle */}
+                
                 {coatItems.length > 0 && (
                   <View style={{ flexDirection: 'column', alignItems: 'center', marginHorizontal: 6 }}>
                     {coatItems.map(item => (
@@ -221,7 +221,7 @@ export default function HomeScreen() {
             );
           })()}
 
-          {/* Main items pysyy ennallaan */}
+          
           {(() => {
             const mainItems = mainCategories
               .filter(cat => cat !== 'coat' && cat !== 'cardigan')

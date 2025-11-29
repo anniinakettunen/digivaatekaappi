@@ -7,7 +7,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Handbag } from 'lucide-react-native';
 import { theme } from './config/theme'; 
 
-// Näytöt
+
 import HomeScreen from './screens/HomeScreen';
 import SavedStylesScreen from './screens/SavedStylesScreen';
 import ClothingList from './screens/ClothingList';

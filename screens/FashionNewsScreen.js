@@ -37,7 +37,7 @@ export default function FashionNewsScreen() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={[globalStyles.newsCard, { backgroundColor: 'rgba(255,255,255,0.8)' }]} // hieman läpinäkyvä kortti
+      style={[globalStyles.newsCard, { backgroundColor: 'rgba(255,255,255,0.8)' }]} 
       onPress={() => item.link && Linking.openURL(item.link)}
     >
       {item.image_url ? (

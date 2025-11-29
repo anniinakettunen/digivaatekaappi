@@ -74,11 +74,11 @@ export default function EditOutFitScreen() {
       for (const item of selectedItems) {
         await db.runAsync('INSERT INTO outfit_clothing (outfitId, clothingId) VALUES (?, ?);', outfitId, item.id);
       }
-      Alert.alert('Onnistui', 'Asu päivitetty!');
+      Alert.alert('Outfit updated!');
       navigation.goBack();
     } catch (error) {
       console.error('Failed to update outfit:', error);
-      Alert.alert('Virhe', 'Päivitys epäonnistui.');
+      Alert.alert('Error', 'Update failed.');
     }
   };
 
@@ -126,41 +126,132 @@ export default function EditOutFitScreen() {
         <Text style={globalStyles.title}>Edit Outfit: {outfit?.style}</Text>
 
         <View style={globalStyles.outfitArea}>
-          {/* Asusteet */}
-          <View style={globalStyles.accessoryColumn}>
-            <View style={globalStyles.accessoryRow}>
-              {accessoryCategories.map((category) => {
-                const item = getItemByCategory(category);
-                return item ? (
-                  <TouchableOpacity
-                    key={item.id}
-                    onPress={() => removeFromOutfit(item.id)}
-                    style={globalStyles.accessoryItem}
-                  >
-                    <Image source={{ uri: item.imageUri }} style={globalStyles.accessoryImage} />
-                    <Text style={globalStyles.outfitLabel}>{category.toUpperCase()}</Text>
-                  </TouchableOpacity>
-                ) : null;
-              })}
-            </View>
-          </View>
 
-          {/* Päävaatteet */}
-          <View style={globalStyles.mainColumn}>
-            {mainCategories.map((category) => {
-              const item = getItemByCategory(category);
-              return item ? (
-                <TouchableOpacity
-                  key={item.id}
-                  onPress={() => removeFromOutfit(item.id)}
-                  style={globalStyles.outfitItem}
-                >
-                  <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
-                  <Text style={globalStyles.outfitLabel}>{category.toUpperCase()}</Text>
-                </TouchableOpacity>
-              ) : null;
-            })}
-          </View>
+          
+          {(() => {
+            const accessoryItems = accessoryCategories
+              .map(cat => getItemByCategory(cat))
+              .filter(Boolean);
+
+            const chunkArray = (arr, size) => {
+              const chunks = [];
+              for (let i = 0; i < arr.length; i += size) {
+                chunks.push(arr.slice(i, i + size));
+              }
+              return chunks;
+            };
+
+            const accessoryColumns = chunkArray(accessoryItems, 4);
+
+            
+            const coatItems = ['coat', 'cardigan']
+              .map(cat => getItemByCategory(cat))
+              .filter(Boolean);
+
+            return (
+              <View style={{ flexDirection: 'row', marginRight: 12 }}>
+
+                
+                {accessoryColumns.map((col, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      marginHorizontal: 6
+                    }}
+                  >
+                    {col.map(item => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => removeFromOutfit(item.id)}
+                        style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                      >
+                        <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                        <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ))}
+
+                
+                {coatItems.length > 0 && (
+                  <View
+                    style={{
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      marginHorizontal: 6
+                    }}
+                  >
+                    {coatItems.map(item => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => removeFromOutfit(item.id)}
+                        style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                      >
+                        <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                        <Text style={globalStyles.outfitLabel}>{item.category.toUpperCase()}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            );
+          })()}
+
+          
+          {(() => {
+            const mainItems = mainCategories
+              .filter(cat => cat !== 'coat' && cat !== 'cardigan')
+              .map(category => getItemByCategory(category))
+              .filter(Boolean);
+
+            const chunkArray = (arr, size) => {
+              const chunks = [];
+              for (let i = 0; i < arr.length; i += size) {
+                chunks.push(arr.slice(i, i + size));
+              }
+              return chunks;
+            };
+
+            const columns = chunkArray(mainItems, 4);
+
+            return (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'stretch'
+                }}
+              >
+                {columns.map((colItems, colIndex) => (
+                  <View
+                    key={`col-${colIndex}`}
+                    style={{
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      marginHorizontal: 6,
+                      justifyContent: colIndex % 2 === 1 ? 'flex-end' : 'flex-start'
+                    }}
+                  >
+                    {colItems.map(item => (
+                      <TouchableOpacity
+                        key={item.id}
+                        onPress={() => removeFromOutfit(item.id)}
+                        style={[globalStyles.outfitItem, { marginVertical: 6 }]}
+                      >
+                        <Image source={{ uri: item.imageUri }} style={globalStyles.outfitImage} />
+                        <Text style={globalStyles.outfitLabel}>
+                          {item.category.toUpperCase()}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ))}
+              </View>
+            );
+          })()}
+
         </View>
 
         <TextInput

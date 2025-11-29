@@ -1,7 +1,7 @@
 
 export const theme = {
   colors: {
-    // 🎨 Päävärit
+    
     primary: '#0F828C', 
     secondary: '#A86464', 
     accent: '#B3E5BE', 
